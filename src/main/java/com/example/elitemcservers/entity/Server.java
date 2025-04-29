@@ -5,6 +5,7 @@ import com.example.elitemcservers.enums.ServerVersion;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "servers")
@@ -45,6 +46,9 @@ public class Server {
     @ManyToOne
     @JoinColumn(name = "created_by")
     private User createdBy;
+
+    @OneToMany(mappedBy = "server", cascade = CascadeType.ALL)
+    private List<Server> servers;
 
     public Long getId() {
         return id;
@@ -132,5 +136,13 @@ public class Server {
 
     public void setCreatedBy(User createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public List<Server> getServers() {
+        return servers;
+    }
+
+    public void setServers(List<Server> servers) {
+        this.servers = servers;
     }
 }
