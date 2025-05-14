@@ -2,6 +2,7 @@ package com.example.elitemcservers.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
 
@@ -12,8 +13,9 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotEmpty(message = "Komnetarz nie może być pusty")
+    @NotEmpty(message = "Comment cannot be empty")
     @Column(length = 1000)
+    @Pattern(regexp = "^[\\p{L}\\p{N}.,!?()\\-\\s]{1,1000}$", message = "Comment contains forbidden characters (e.g. <, >, ;, ', \")")
     private String content;
 
     private LocalDateTime creationDate = LocalDateTime.now();

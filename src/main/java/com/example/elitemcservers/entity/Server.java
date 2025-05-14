@@ -1,8 +1,11 @@
 package com.example.elitemcservers.entity;
 
 import com.example.elitemcservers.enums.ServerMode;
+import com.example.elitemcservers.enums.ServerStatus;
 import com.example.elitemcservers.enums.ServerVersion;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,11 +18,12 @@ public class Server {
     private Long id;
 
     @Column(nullable = true)
+    @Pattern(regexp = "^[a-zA-Z0-9 .\\-]{3,50}$", message = "Server name must be 3-50 characters and contain only letters, numbers, spaces, dots, or hyphens")
     private String serverName;
 
     @Column(nullable = true)
+    @Pattern(regexp = "^[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$|^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|$)){4}$", message = "Invalid IP address or domain")
     private String ipAddress;
-
 
     // Wersja - pole enum (od jakiej do jakiej)
     @Enumerated(EnumType.STRING)
@@ -31,9 +35,16 @@ public class Server {
     @Column(nullable = false)
     private ServerMode mode;
 
+    @Column(columnDefinition = "TEXT", nullable = true)
+    @Pattern(regexp = "^[\\p{L}\\p{N}.,!?()\\-\\s]{1,1000}$", message = "Description contains invalid characters (no quotes, semicolons, or angle brackets)")
+    private String description;
+
     private int upVotes = 0;
     private int downVotes = 0;
     private int score = 0;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ServerStatus status = ServerStatus.PENDING;
 
     // Data dodania serwera
     @Column(nullable = false, updatable = false)
@@ -48,7 +59,7 @@ public class Server {
     private User createdBy;
 
     @OneToMany(mappedBy = "server", cascade = CascadeType.ALL)
-    private List<Server> servers;
+    private List<Comment> comments;
 
     public Long getId() {
         return id;
@@ -90,6 +101,14 @@ public class Server {
         this.mode = mode;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public int getUpVotes() {
         return upVotes;
     }
@@ -112,6 +131,14 @@ public class Server {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public ServerStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ServerStatus status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -138,11 +165,11 @@ public class Server {
         this.createdBy = createdBy;
     }
 
-    public List<Server> getServers() {
-        return servers;
+    public List<Comment> getComments() {
+        return comments;
     }
 
-    public void setServers(List<Server> servers) {
-        this.servers = servers;
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<div th:replace="fragments :: header"></div>
+<div class="container">
+    <div class="content register">
+        <h2>Register</h2>
+        <form th:action="@{/register}" th:object="${user}" method="post">
+            <label>Username:</label>
+            <input type="text" th:field="*{username}" required>
+            <div class="form-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+
+            <label>Email:</label>
+            <input type="email" th:field="*{email}" required>
+            <div class="form-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+
+            <label>Password:</label>
+            <input type="password" th:field="*{password}" required>
+            <div class="form-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+
+            <label>Confirm Password:</label>
+            <input type="password" name="confirmPassword" required/>
+
+            <label>
+                <input type="checkbox" name="terms" required/> I agreed to the terms and conditions.
+            </label>
+            <div class="form-error" th:if="${#fields.hasGlobalErrors()}" th:each="err : ${#fields.globalErrors()}">
+                <p th:text="${err}"></p>
+            </div>
+            <button type="submit" class="btn">Register</button>
+            <br><br>
+            <a href="/oauth2/authorization/google">Zaloguj się przez Google</a>
+        </form>
+        <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</body>
+</html>

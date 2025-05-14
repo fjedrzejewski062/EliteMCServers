@@ -29,6 +29,7 @@ public class User {
 
     @NotEmpty(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
+    @Pattern(regexp = "^[\\p{L}\\p{N}@#$%^&+=!?.*()-]{8,}$", message = "Password contains invalid characters")
     private String password;
 
     private String profileImage = "/img/default_profile.png";

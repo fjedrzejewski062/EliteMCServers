@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<div th:replace="fragments :: header"></div>
+<div class="container">
+    <div class="content login">
+        <h2>Login</h2>
+        <form th:action="@{/login}" method="post">
+            <label>Email:</label>
+            <input type="email" name="username" required>
+            <label>Password:</label>
+            <input type="password" name="password" required>
+            <button type="submit" class="btn">Login</button>
+            <br>
+            <div class="form-error" th:if="${param.error}">
+                <p>Invalid email or password.</p>
+            </div>
+            <br>
+            <a href="/oauth2/authorization/google">Zaloguj się przez Google</a>
+        </form>
+        <p>You don't have account? <a th:href="@{/register}">Register</a></p>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</body>
+</html>

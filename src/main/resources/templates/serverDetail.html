@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="fragments :: header"></div>
+<div class="container centered-container">
+    <div class="content">
+        <h2 th:text="${server.serverName} + ' - Szczegóły'">Server Details</h2>
+        <p><strong>ID:</strong> <span th:text="${server.id}">ID</span></p>
+        <p><strong>Server Name:</strong> <span th:text="${server.serverName}">Server Name</span></p>
+        <p><strong>IP Address:</strong> <span th:text="${server.ipAddress}">IP Address</span></p>
+        <p><strong>Version:</strong> <span th:text="${server.version.versionName}">Version</span></p>
+        <p><strong>Mode:</strong> <span th:text="${server.mode.modeName}">Mode</span></p>
+        <p><strong>Description:</strong> <span th:text="${server.description}">Description</span></p>
+        <p><strong>Up Votes:</strong> <span th:text="${server.upVotes}">UpVotes</span></p>
+        <p><strong>Down Votes:</strong> <span th:text="${server.downVotes}">DownVotes</span></p>
+        <p><strong>Score:</strong> <span th:text="${server.score}">Score</span></p>
+        <p><strong>Created At:</strong> <span th:text="${#temporals.format(server.createdAt, 'yyyy-MM-dd HH:mm')}">Created</span></p>
+        <p><strong>Updated At:</strong> <span th:text="${#temporals.format(server.updatedAt, 'yyyy-MM-dd HH:mm')}">Updated</span></p>
+        <p><strong>Created By:</strong> <span th:text="${server.createdBy.username}">CreatedBy</span></p>
+
+        <div class="form-error" th:if="${error}">
+            <p th:text="${error}" class="error-message"></p>
+        </div>
+
+        <a th:href="@{'/servers/edit/' + ${server.id}}" class="btn">Edytuj Serwer</a>
+        <a th:href="@{'/servers/delete/' + ${server.id}}" class="btn btn-delete"
+           onclick="return confirm('Are you sure?');">Delete</a>
+
+        <h3>Comments</h3>
+        <div th:if="${server.comments != null}">
+            <div th:each="comment : ${server.comments}">
+                <p>
+                    <strong th:text="${comment.createdBy.username}">User</strong> -
+                    <em th:text="${#temporals.format(comment.creationDate, 'yyyy-MM-dd HH:mm')}">Date</em>
+                </p>
+                <p th:text="${comment.content}">Comment content</p>
+
+                <!-- Przycisk edycji - tylko dla autora komentarza -->
+                <div th:if="${comment.createdBy.email == currentUserEmail}" style="margin-bottom: 1em;">
+                    <!-- Przycisk edytuj, przekierowuje na odpowiedni URL: /servers/{serverId}/comments/{commentId}/edit -->
+                    <a th:href="@{'/servers/' + ${server.id} + '/comments/' + ${comment.id} + '/edit'}" class="btn btn-sm btn-warning">Edit</a>
+
+                    <form th:action="@{'/servers/' + ${server.id} + '/comments/' + ${comment.id} + '/delete'}"
+                          method="post" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Are you sure you want to delete this comment?')">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+
+                <hr/>
+            </div>
+        </div>
+
+        <!-- Formularz dodawania komentarza -->
+        <form th:action="@{'/servers/' + ${server.id} + '/comment'}"
+              th:object="${comment}" method="post">
+            <div>
+                <textarea th:field="*{content}" placeholder="Add comment..." required></textarea>
+
+                <!-- Walidacja błędu dla pola 'content' -->
+                <div th:if="${#fields.hasErrors('content')}" class="form-error">
+                    <p th:each="err : ${#fields.errors('content')}" th:text="${err}" class="error-message"></p>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add comment</button>
+        </form>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</body>
+</html>

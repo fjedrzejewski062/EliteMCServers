@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="header">
+    <header class="main-header">
+        <h1><a th:href="@{/}">EliteMCServers</a></h1>
+        <nav>
+            <ul>
+                <li sec:authorize="hasAuthority('ADMIN')">
+                    <a th:href="@{/admin/dashboard}">Admin Panel</a>
+                </li>
+                <li sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/register}">Register</a>
+                </li>
+                <li sec:authorize="!isAuthenticated()">
+                    <a th:href="@{/login}">Login</a>
+                </li>
+                <li>
+                    <a th:href="@{/donate}">Donate Us</a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a th:href="@{/myprofile}">My Profile</a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a th:href="@{/logout}">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+</div>
+
+<div th:fragment="footer">
+    <footer class="main-footer">
+        <p>&copy; EliteMCServers</p>
+    </footer>
+</div>
+</body>
+</html>

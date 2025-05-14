@@ -1,6 +1,7 @@
 package com.example.elitemcservers.controller;
 
 import com.example.elitemcservers.entity.User;
+import com.example.elitemcservers.facade.UserFacade;
 import com.example.elitemcservers.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,12 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class UserController {
-    private final UserService userService;
+    private final UserFacade userFacade;
     @Value("${admin.email}")
     private String adminEmail;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserFacade userFacade) {
+        this.userFacade = userFacade;
     }
 
     @GetMapping("/register")
@@ -33,32 +34,14 @@ public class UserController {
     public String registrationForm(@Valid @ModelAttribute("user") User user,
                                    BindingResult result,
                                    @RequestParam("confirmPassword") String confirmPassword,
-                                   @RequestParam(value="terms", required = false) String terms,
-                                   Model model){
-        if(!user.getPassword().equals(confirmPassword)){
-            result.rejectValue("password", "error.user", "Passwords do not match");
-        }
-
-        if(terms == null){
-            result.rejectValue("terms", "You must agree to the terms and conditions");
-        }
-
-        if(userService.findByUsername(user.getUsername()).isPresent()){
-            result.rejectValue("username", "error.user", "Username is already taken");
-        }
-
-        if(userService.findByEmail(user.getEmail()).isPresent()){
-            result.rejectValue("email", "error.user", "Email is already registered");
-        }
-
-        if(adminEmail != null && adminEmail.equalsIgnoreCase(user.getEmail())){
-            user.setRole("ADMIN");
-        }
-
-        if(result.hasErrors()){
+                                   @RequestParam(value = "terms", required = false) String terms,
+                                   Model model) {
+        try {
+            userFacade.registerUser(user, confirmPassword, terms);
+        } catch (IllegalArgumentException ex) {
+            result.rejectValue("password", "error.user", ex.getMessage());
             return "register";
         }
-        userService.register(user);
         return "redirect:/";
     }
 
@@ -72,7 +55,7 @@ public class UserController {
                               @AuthenticationPrincipal
                               org.springframework.security.core.userdetails.User currentUser){
         String email = currentUser.getUsername();
-        User user = userService.findByEmail(email).orElse(null);
+        User user = userFacade.findByEmail(email).orElse(null);
         model.addAttribute("user", user);
         return "myProfile";
     }
@@ -80,9 +63,9 @@ public class UserController {
     @PostMapping("/deleteaccount")
     public String deleteAccount(@AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser){
         String email = currentUser.getUsername();
-        User user = userService.findByEmail(email).orElse(null);
+        User user = userFacade.findByEmail(email).orElse(null);
         if(user != null){
-            userService.softDelete(user);
+            userFacade.deleteUserAccount(user);
         }
         return "redirect:/logout";
     }

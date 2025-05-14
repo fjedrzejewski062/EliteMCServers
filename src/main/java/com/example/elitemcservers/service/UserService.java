@@ -43,7 +43,7 @@ public class UserService {
         //userRepository.delete(user);
         user.setDeleted(true);
         user.setUsername("DELETED-USER-" + user.getId());
-        user.setEmail("DELETED-USER-" + user.getId() + "@beathelper.com");
+        user.setEmail("DELETED-USER-" + user.getId() + "@elitemcservers.com");
         user.setPassword(passwordEncoder.encode("DELETED-PASSWORD"));
         userRepository.save(user);
     }

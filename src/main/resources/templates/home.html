@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="fragments :: header"></div>
+<div class="container centered-container">
+    <div class="content">
+        <h2>Welcome to EliteMCServers!</h2>
+        <form method="get" th:action="@{/}" class="filter-form">
+            <div class="filter-row">
+                <!-- Server Name -->
+                <div class="filter-group">
+                    <label>Server Name:</label>
+                    <input type="text" name="serverName" th:value="${serverName}" class="small-input">
+                </div>
+
+                <!-- IP Address -->
+                <div class="filter-group">
+                    <label>IP Address:</label>
+                    <input type="text" name="ipAddress" th:value="${ipAddress}" class="small-input">
+                </div>
+
+                <!-- Version -->
+                <div class="filter-group">
+                    <label>Version:</label>
+                    <select name="versionId" class="small-input">
+                        <option value="">-- All --</option>
+                        <option th:each="v : ${versions}"
+                                th:value="${v.ordinal()}"
+                                th:text="${v.versionName}"
+                                th:selected="${versionId == v.ordinal()}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Mode -->
+                <div class="filter-group">
+                    <label>Mode:</label>
+                    <select name="modeId" class="small-input">
+                        <option value="">-- All --</option>
+                        <option th:each="m : ${modes}"
+                                th:value="${m.ordinal()}"
+                                th:text="${m.name()}"
+                                th:selected="${modeId == m.ordinal()}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row">
+
+                <!-- Min Score -->
+                <div class="filter-group">
+                    <label>Min Score:</label>
+                    <input type="number" name="minScore" th:value="${minScore}" class="small-input">
+                </div>
+
+                <!-- Max Score -->
+                <div class="filter-group">
+                    <label>Max Score:</label>
+                    <input type="number" name="maxScore" th:value="${maxScore}" class="small-input">
+                </div>
+            </div>
+
+            <!-- Error display -->
+            <div class="form-error" th:if="${error}">
+                <p th:text="${error}"></p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="filter-group">
+                <button type="submit" class="btn">Filter</button>
+                <a th:href="@{/}" class="btn btn-clear spaced-btn">Clear Filters</a>
+            </div>
+        </form>
+        <div sec:authorize="isAuthenticated()" style="margin-top: 1em; margin-bottom: 1em;">
+            <a href="/servers/create" class="btn">+ Add server</a>
+        </div>
+        <p>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Server Name</th>
+                <th>IP Address</th>
+                <th>Server Version</th>
+                <th>Server Mode</th>
+                <th>Score</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="server : ${servers}">
+                <td th:text="${server.id}">ID</td>
+                <td th:text="${server.serverName}">Server Name</td>
+                <td th:text="${server.ipAddress}">IP Address</td>
+                <td th:text="${server.version.versionName}">Server Version</td>
+                <td th:text="${server.mode.modeName}">Server Mode</td>
+                <td th:text="${server.score}">0</td>
+                <td>
+                    <div sec:authorize="isAuthenticated()">
+                        <form th:action="@{'/servers/' + ${server.id} + '/vote'}" method="post" style="display:inline;">
+                            <input type="hidden" name="vote" value="up"/>
+                            <button type="submit">⬆</button>
+                        </form>
+                        <form th:action="@{'/servers/' + ${server.id} + '/vote'}" method="post" style="display:inline;">
+                            <input type="hidden" name="vote" value="down"/>
+                            <button type="submit">⬇</button>
+                        </form>
+                    </div>
+                    <span th:text="${server.upVotes}">0</span> /
+                    <span th:text="${server.downVotes}">0</span>
+                    <a th:href="@{'/servers/' + ${server.id}}" class="btn">Details</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="pagination" th:if="${totalPages > 1}" style="margin-top: 1em; text-align: center;">
+            <!-- Previous Button -->
+            <a th:if="${currentPage > 0}"
+               th:href="@{/(page=${currentPage - 1}, serverName=${serverName}, ipAddress=${ipAddress}, versionId=${versionId}, modeId=${modeId}, minScore=${minScore}, maxScore=${maxScore}, startDate=${startDate}, endDate=${endDate}, sortField=${sortField}, sortDirection=${sortDirection})}"
+               class="btn">Previous</a>
+
+            <!-- Page Number -->
+            <span>Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span></span>
+
+            <!-- Next Button -->
+            <a th:if="${currentPage + 1 < totalPages}"
+               th:href="@{/(page=${currentPage + 1}, serverName=${serverName}, ipAddress=${ipAddress}, versionId=${versionId}, modeId=${modeId}, minScore=${minScore}, maxScore=${maxScore}, startDate=${startDate}, endDate=${endDate}, sortField=${sortField}, sortDirection=${sortDirection})}"
+               class="btn">Next</a>
+        </div>
+
+
+        </p>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</body>
+</html>

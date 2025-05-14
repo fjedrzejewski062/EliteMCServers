@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="fragments :: header"></div>
+<div class="container centered-container">
+    <div class="content">
+        <h2>Edit Server</h2>
+        <form th:action="@{'/servers/edit/' + ${server.id}}" th:object="${server}" method="post">
+
+            <label for="serverName">Server Name:</label>
+            <input type="text" id="serverName" th:field="*{serverName}" required/><br/>
+            <div class="form-error" th:if="${#fields.hasErrors('serverName')}" th:errors="*{serverName}"></div>
+
+            <label for="ipAddress">IP Address:</label>
+            <input type="text" id="ipAddress" th:field="*{ipAddress}" required/><br/>
+            <div class="form-error" th:if="${#fields.hasErrors('ipAddress')}" th:errors="*{ipAddress}"></div>
+
+            <label for="version">Server Version:</label>
+            <select id="version" th:field="*{version}" required>
+                <option th:each="v : ${T(com.example.elitemcservers.enums.ServerVersion).values()}"
+                        th:value="${v}" th:text="${v}">Version</option>
+            </select><br/>
+
+            <label for="mode">Server Mode:</label>
+            <select id="mode" th:field="*{mode}" required>
+                <option th:each="m : ${T(com.example.elitemcservers.enums.ServerMode).values()}"
+                        th:value="${m}" th:text="${m}">Mode</option>
+            </select><br/>
+
+            <label for="description">Description:</label><br/>
+            <textarea id="description" th:field="*{description}" rows="5" cols="50"></textarea><br/>
+            <div class="form-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+
+            <div class="form-error" th:if="${error}">
+                <p th:text="${error}" class="error-message"></p>
+            </div>
+
+            <button type="submit" class="btn">Edit Server</button>
+        </form>
+        <br/>
+
+        <a th:href="@{/}" class="btn">Back</a>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</body>
+</html>

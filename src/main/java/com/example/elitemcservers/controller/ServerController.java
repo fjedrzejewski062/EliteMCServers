@@ -5,6 +5,8 @@ import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.entity.User;
 import com.example.elitemcservers.enums.ServerMode;
 import com.example.elitemcservers.enums.ServerVersion;
+import com.example.elitemcservers.facade.ServerFacade;
+import com.example.elitemcservers.facade.UserFacade;
 import com.example.elitemcservers.service.CommentService;
 import com.example.elitemcservers.service.ServerService;
 import com.example.elitemcservers.service.UserService;
@@ -21,86 +23,23 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/servers")
 public class ServerController {
-    private final ServerService serverService;
-    private final UserService userService;
+    private final ServerFacade serverFacade;
+    private final UserFacade userFacade;
     private final CommentService commentService;
 
-    public ServerController(ServerService serverService, UserService userService, CommentService commentService) {
-        this.serverService = serverService;
-        this.userService = userService;
+    public ServerController(ServerFacade serverFacade,
+                            UserFacade userFacade,
+                            CommentService commentService) {
+        this.serverFacade = serverFacade;
+        this.userFacade = userFacade;
         this.commentService = commentService;
     }
 
-//    @GetMapping("/myservers")
-//    public String myServers(Model model,
-//                            @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
-//                            RedirectAttributes redirectAttributes,
-//                            @RequestParam(required = false) String serverName,
-//                            @RequestParam(required = false) String ipAddress,
-//                            @RequestParam(required = false) ServerVersion version,
-//                            @RequestParam(required = false) ServerMode mode,
-//                            @RequestParam(required = false) Integer minUpVotes,
-//                            @RequestParam(required = false) Integer maxUpVotes,
-//                            @RequestParam(required = false) Integer minDownVotes,
-//                            @RequestParam(required = false) Integer maxDownVotes,
-//                            @RequestParam(required = false) Integer minScore,
-//                            @RequestParam(required = false) Integer maxScore,
-//                            @RequestParam(required = false) String startDate,
-//                            @RequestParam(required = false) String endDate,
-//                            @RequestParam(defaultValue = "0") int page,
-//                            @RequestParam(defaultValue = "id") String sortField,
-//                            @RequestParam(defaultValue = "asc") String sortDirection) {
-//
-//        // Pobranie użytkownika
-//        String email = currentUser.getUsername();
-//        User user = userService.findByEmail(email).orElse(null);
-//
-//        // Walidacja daty
-//        if (startDate != null && endDate != null && !startDate.isEmpty() && !endDate.isEmpty()) {
-//            LocalDateTime start = LocalDateTime.parse(startDate + "T00:00:00");
-//            LocalDateTime end = LocalDateTime.parse(endDate + "T23:59:59");
-//            if (end.isBefore(start)) {
-//                redirectAttributes.addFlashAttribute("error", "End date cannot be earlier than start date.");
-//                return "redirect:/myservers";
-//            }
-//        }
-//
-//        // Ustalenie sortowania
-//        Sort sort = sortDirection.equalsIgnoreCase("asc") ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
-//        Pageable pageable = PageRequest.of(page, 10, sort);
-//
-//        // Wykonanie zapytania z filtrami
-//        Page<Server> serverPage = serverService.findFilteredServers(
-//                user, serverName, ipAddress, version, mode, minUpVotes, maxUpVotes,
-//                minDownVotes, maxDownVotes, minScore, maxScore, startDate, endDate, pageable);
-//
-//        // Dodanie atrybutów do modelu
-//        model.addAttribute("user", user);
-//        model.addAttribute("servers", serverPage.getContent());
-//        model.addAttribute("totalPages", serverPage.getTotalPages());
-//        model.addAttribute("currentPage", page);
-//        model.addAttribute("sortField", sortField);
-//        model.addAttribute("sortDirection", sortDirection);
-//        model.addAttribute("reverseSortDirection", sortDirection.equals("asc") ? "desc" : "asc");
-//        model.addAttribute("serverName", serverName);
-//        model.addAttribute("ipAddress", ipAddress);
-//        model.addAttribute("version", version);
-//        model.addAttribute("mode", mode);
-//        model.addAttribute("minUpVotes", minUpVotes);
-//        model.addAttribute("maxUpVotes", maxUpVotes);
-//        model.addAttribute("minDownVotes", minDownVotes);
-//        model.addAttribute("maxDownVotes", maxDownVotes);
-//        model.addAttribute("minScore", minScore);
-//        model.addAttribute("maxScore", maxScore);
-//        model.addAttribute("startDate", startDate);
-//        model.addAttribute("endDate", endDate);
-//
-//        return "myServers";  // Widok, który wyświetli listę serwerów
-//    }
     @GetMapping("/create")
     public String showCreateServerForm(Model model){
         model.addAttribute("server", new Server());
@@ -114,25 +53,34 @@ public class ServerController {
                              @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
                              Model model) {
         if (result.hasErrors()) {
-            return "createServer";
+            model.addAttribute("server", server); // ← potrzebne przy błędach
+            return "createServer"; // ← wróć do formularza z błędami
         }
 
         String email = currentUser.getUsername();
-        User user = userService.findByEmail(email).orElse(null);
+        User user = userFacade.findByEmail(email).orElse(null);
 
-        serverService.createServer(server, user);
+        serverFacade.createServer(server, user);
         return "redirect:/";
     }
 
     @GetMapping("/{id}")
-    public String serverDetail(@PathVariable Long id, Model model) {
-        Server server = serverService.findById(id);
+    public String serverDetail(@PathVariable Long id,
+                               @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                               Model model) {
+        Server server = serverFacade.findById(id);
         if (server == null) {
             return "redirect:/";
         }
+
+
         model.addAttribute("server", server);
-        // Pusty obiekt komentarza, by w formularzu thymeleaf mieć th:object
         model.addAttribute("comment", new Comment());
+
+        if (currentUser != null) {
+            model.addAttribute("currentUserEmail", currentUser.getUsername());
+        }
+
         return "serverDetail";
     }
 
@@ -140,16 +88,19 @@ public class ServerController {
     public String voteServer(@PathVariable Long id,
                            @RequestParam("vote") String vote,
                            @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser) {
-        Server server = serverService.findById(id);
-        if (server == null) {
-            return "redirect:/";
+        if (currentUser == null) {
+            return "redirect:/login"; // lub przekierowanie z komunikatem
         }
-        if ("up".equals(vote)) {
-            serverService.upVote(server);
-        } else if ("down".equals(vote)) {
-            serverService.downVote(server);
+
+        Server server = serverFacade.findById(id);
+        if (server != null) {
+            Optional<User> userOptional = userFacade.findByEmail(currentUser.getUsername());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                serverFacade.voteServer(server, vote, user);
+            }
         }
-        return "redirect:/servers/" + id;
+        return "redirect:/";
     }
 
     @PostMapping("/{id}/comment")
@@ -158,44 +109,110 @@ public class ServerController {
                              BindingResult result,
                              @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
                              Model model) {
-        Server server = serverService.findById(id);
+        // Logika dodawania komentarza
+        Server server = serverFacade.findById(id);
         if (server == null) {
             return "redirect:/";
         }
+
         if (result.hasErrors()) {
             model.addAttribute("server", server);
+            model.addAttribute("comment", newComment);
             return "serverDetail";
         }
+
         if (currentUser == null) {
             return "redirect:/login";
         }
 
-        User user = userService.findByEmail(currentUser.getUsername()).orElse(null);
+        User user = userFacade.findByEmail(currentUser.getUsername()).orElse(null);
         if (user == null) {
             return "redirect:/login";
         }
 
-        // DODAJEMY NOWY komentarz:
-        // by mieć pewność, że id jest null:
-        newComment.setId(null);
-
-        newComment.setServer(server);
-        newComment.setCreatedBy(user);
-        newComment.setCreationDate(LocalDateTime.now());
-
+        // Dodawanie komentarza
+        newComment.setId(null); // ensure we are adding a new comment
+        serverFacade.addComment(server, newComment, user);
         commentService.save(newComment);
 
         return "redirect:/servers/" + id;
     }
 
+    @GetMapping("/{id}/comments/{commentId}/edit")
+    public String editCommentForm(@PathVariable Long commentId,
+                                  @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                                  Model model) {
+        Optional<Comment> optionalComment = commentService.findById(commentId);
+        if (optionalComment.isEmpty()) {
+            return "redirect:/";
+        }
+
+        Comment comment = optionalComment.get();
+        if (!comment.getCreatedBy().getEmail().equals(currentUser.getUsername())) {
+            return "redirect:/";
+        }
+
+        // Przekazujemy id komentarza, który edytujemy
+        model.addAttribute("editingCommentId", commentId);
+        model.addAttribute("server", comment.getServer());
+        model.addAttribute("comment", comment); // Formularz edytowania komentarza
+
+        return "editComment"; // Z powrotem do serverDetail z formularzem edycji
+    }
+
+    @PostMapping("/{id}/comments/{commentId}/edit")
+    public String editCommentSubmit(@PathVariable Long commentId,
+                                    @Valid @ModelAttribute("comment") Comment updatedComment,
+                                    BindingResult result,
+                                    @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                                    Model model) {
+        Optional<Comment> optionalComment = commentService.findById(commentId);
+        if (optionalComment.isEmpty()) {
+            return "redirect:/";
+        }
+
+        Comment comment = optionalComment.get();
+        if (!comment.getCreatedBy().getEmail().equals(currentUser.getUsername())) {
+            return "redirect:/";
+        }
+
+        if (result.hasErrors()) {
+            model.addAttribute("comment", updatedComment);
+            return "serverDetail"; // pozostań na tej samej stronie
+        }
+
+        // Zaktualizowanie komentarza w bazie
+        comment.setContent(updatedComment.getContent());
+        commentService.save(comment);
+
+        return "redirect:/servers/" + comment.getServer().getId();
+    }
+
+
+    @PostMapping("/{id}/comments/{commentId}/delete")
+    public String deleteComment(@PathVariable Long commentId,
+                                @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser) {
+        Optional<Comment> optionalComment = commentService.findById(commentId);
+        if (optionalComment.isPresent()) {
+            Comment comment = optionalComment.get();
+            if (comment.getCreatedBy().getEmail().equals(currentUser.getUsername())) {
+                Long serverId = comment.getServer().getId();
+                commentService.deleteComment(commentId);
+                return "redirect:/servers/" + serverId;
+            }
+        }
+        return "redirect:/";
+    }
 
     @GetMapping("/edit/{id}")
     public String showEditServer(@PathVariable Long id, Model model,
-                              @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser){
-        Server server = serverService.findById(id);
+                                 @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                                 RedirectAttributes redirectAttributes){
+        Server server = serverFacade.findById(id);
 
         if(server == null || !server.getCreatedBy().getEmail().equals(currentUser.getUsername())){
-            return "redirect:/";
+            redirectAttributes.addFlashAttribute("error", "This is not your server!");
+            return "redirect:/servers/" + id;
         }
 
         model.addAttribute("server", server);
@@ -207,30 +224,33 @@ public class ServerController {
                              @Valid @ModelAttribute("server") Server updatedServer,
                              BindingResult result,
                              @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
-                             Model model){
-        Server existingServer = serverService.findById(id);
+                             Model model,
+                             RedirectAttributes redirectAttributes){
+        Server existingServer = serverFacade.findById(id);
 
         if(existingServer == null || !existingServer.getCreatedBy().getEmail().equals(currentUser.getUsername())){
-            return "redirect:/";
+            redirectAttributes.addFlashAttribute("error", "This is not your server!");
+            return "redirect:/servers/" + id;
         }
 
-        existingServer.setServerName(updatedServer.getServerName());
-        existingServer.setIpAddress(updatedServer.getIpAddress());
-        existingServer.setMode(updatedServer.getMode());
-        existingServer.setVersion(updatedServer.getVersion());
-        serverService.updateServer(existingServer);
+        if (result.hasErrors()) {
+            model.addAttribute("server", updatedServer); // ← ważne!
+            return "editServer"; // ← wracamy do formularza z błędami
+        }
+
+        serverFacade.updateServer(existingServer, updatedServer);
         return "redirect:/";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteServer(@PathVariable Long id,
-                            @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser){
-        Server server = serverService.findById(id);
+                               @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                               RedirectAttributes redirectAttributes){
+        Server server = serverFacade.findById(id);
         if(server != null && server.getCreatedBy().getEmail().equals(currentUser.getUsername())){
-            serverService.deleteServer(id);
+            serverFacade.deleteServer(id);
         }
-        return "redirect:/";
-
+        redirectAttributes.addFlashAttribute("error", "This is not your server!");
+        return "redirect:/servers/" + id;
     }
-
 }
