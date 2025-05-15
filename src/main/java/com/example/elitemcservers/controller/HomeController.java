@@ -3,6 +3,7 @@ package com.example.elitemcservers.controller;
 import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.enums.ServerMode;
 import com.example.elitemcservers.enums.ServerVersion;
+import com.example.elitemcservers.facade.ServerFacade;
 import com.example.elitemcservers.repository.ServerRepository;
 import com.example.elitemcservers.service.ServerService;
 import org.springframework.data.domain.Page;
@@ -21,13 +22,10 @@ import java.util.List;
 
 @Controller
 public class HomeController {
+    private final ServerFacade serverFacade;
 
-    private final ServerRepository serverRepository;
-    private final ServerService serverService;
-
-    public HomeController(ServerRepository serverRepository, ServerService serverService) {
-        this.serverRepository = serverRepository;
-        this.serverService = serverService;
+    public HomeController(ServerFacade serverFacade) {
+        this.serverFacade = serverFacade;
     }
 
     @GetMapping("/")
@@ -131,7 +129,7 @@ public class HomeController {
         Page<Server> serverPage;
 
             // Inaczej — użyj filtrowania i paginacji
-            serverPage = serverService.findFilteredServers(
+            serverPage = serverFacade.findFilteredServers(
                     null,  // Możesz dodać dodatkowy filtr, jeśli potrzebujesz
                     serverName,
                     ipAddress,

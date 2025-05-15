@@ -105,6 +105,11 @@
             <version>17.0.0</version>
             <scope>compile</scope>
         </dependency>
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>24.9.0</version>
+		</dependency>
     </dependencies>
 
 	<build>

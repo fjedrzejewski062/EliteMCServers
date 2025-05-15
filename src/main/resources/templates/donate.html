@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="fragments :: header"></div>
+<div class="container centered-container">
+    <div class="content">
+        <h2>Donate Us ❤</h2>
+
+        <p>Choose how much you'd like to donate:</p>
+
+        <input type="number" id="amountInput" placeholder="Enter amount (PLN)" min="1" step="0.01" required>
+        <button onclick="donate()">Donate</button>
+        <br><br>
+        <a th:href="@{/}" class="btn">Go to Home</a>
+
+        <script>
+            function donate() {
+                const amount = document.getElementById('amountInput').value;
+
+                if (!amount || amount <= 0) {
+                    alert("Please enter a valid amount.");
+                    return;
+                }
+
+                fetch('/api/donate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ amount: amount })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("Błąd serwera");
+                    return res.text();
+                })
+                .then(url => {
+                    window.location.href = url;  // Przenosi na Stripe Checkout
+                })
+                .catch(err => {
+                    alert("Błąd: " + err.message);
+                });
+            }
+        </script>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</body>
+</html>

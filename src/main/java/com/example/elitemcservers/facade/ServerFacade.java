@@ -4,10 +4,14 @@ import com.example.elitemcservers.entity.Comment;
 import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.entity.ServerVote;
 import com.example.elitemcservers.entity.User;
+import com.example.elitemcservers.enums.ServerMode;
+import com.example.elitemcservers.enums.ServerVersion;
 import com.example.elitemcservers.repository.ServerRepository;
 import com.example.elitemcservers.repository.ServerVoteRepository;
 import com.example.elitemcservers.service.CommentService;
 import com.example.elitemcservers.service.ServerService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -94,5 +98,15 @@ public class ServerFacade {
 
     public void deleteServer(Long id) {
         serverService.deleteServer(id);
+    }
+    public Page<Server> findFilteredServers(User createdBy,
+                                            String serverName,
+                                            String ipAddress,
+                                            ServerVersion version,
+                                            ServerMode mode,
+                                            Integer minScore,
+                                            Integer maxScore,
+                                            Pageable pageable) {
+        return serverService.findFilteredServers(createdBy, serverName, ipAddress, version, mode, minScore, maxScore, pageable);
     }
 }

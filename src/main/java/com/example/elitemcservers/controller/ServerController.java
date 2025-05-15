@@ -3,18 +3,11 @@ package com.example.elitemcservers.controller;
 import com.example.elitemcservers.entity.Comment;
 import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.entity.User;
-import com.example.elitemcservers.enums.ServerMode;
-import com.example.elitemcservers.enums.ServerVersion;
+import com.example.elitemcservers.facade.CommentFacade;
 import com.example.elitemcservers.facade.ServerFacade;
 import com.example.elitemcservers.facade.UserFacade;
 import com.example.elitemcservers.service.CommentService;
-import com.example.elitemcservers.service.ServerService;
-import com.example.elitemcservers.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +15,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Controller
@@ -30,14 +22,12 @@ import java.util.Optional;
 public class ServerController {
     private final ServerFacade serverFacade;
     private final UserFacade userFacade;
-    private final CommentService commentService;
+    private final CommentFacade commentFacade;
 
-    public ServerController(ServerFacade serverFacade,
-                            UserFacade userFacade,
-                            CommentService commentService) {
+    public ServerController(ServerFacade serverFacade, UserFacade userFacade, CommentFacade commentFacade) {
         this.serverFacade = serverFacade;
         this.userFacade = userFacade;
-        this.commentService = commentService;
+        this.commentFacade = commentFacade;
     }
 
     @GetMapping("/create")
@@ -133,7 +123,7 @@ public class ServerController {
         // Dodawanie komentarza
         newComment.setId(null); // ensure we are adding a new comment
         serverFacade.addComment(server, newComment, user);
-        commentService.save(newComment);
+        commentFacade.save(newComment);
 
         return "redirect:/servers/" + id;
     }
@@ -142,7 +132,7 @@ public class ServerController {
     public String editCommentForm(@PathVariable Long commentId,
                                   @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
                                   Model model) {
-        Optional<Comment> optionalComment = commentService.findById(commentId);
+        Optional<Comment> optionalComment = commentFacade.findById(commentId);
         if (optionalComment.isEmpty()) {
             return "redirect:/";
         }
@@ -166,7 +156,7 @@ public class ServerController {
                                     BindingResult result,
                                     @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
                                     Model model) {
-        Optional<Comment> optionalComment = commentService.findById(commentId);
+        Optional<Comment> optionalComment = commentFacade.findById(commentId);
         if (optionalComment.isEmpty()) {
             return "redirect:/";
         }
@@ -183,7 +173,7 @@ public class ServerController {
 
         // Zaktualizowanie komentarza w bazie
         comment.setContent(updatedComment.getContent());
-        commentService.save(comment);
+        commentFacade.save(comment);
 
         return "redirect:/servers/" + comment.getServer().getId();
     }
@@ -192,12 +182,12 @@ public class ServerController {
     @PostMapping("/{id}/comments/{commentId}/delete")
     public String deleteComment(@PathVariable Long commentId,
                                 @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser) {
-        Optional<Comment> optionalComment = commentService.findById(commentId);
+        Optional<Comment> optionalComment = commentFacade.findById(commentId);
         if (optionalComment.isPresent()) {
             Comment comment = optionalComment.get();
             if (comment.getCreatedBy().getEmail().equals(currentUser.getUsername())) {
                 Long serverId = comment.getServer().getId();
-                commentService.deleteComment(commentId);
+                commentFacade.deleteComment(commentId);
                 return "redirect:/servers/" + serverId;
             }
         }
