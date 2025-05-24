@@ -1,5 +1,6 @@
 package com.example.elitemcservers.config;
 
+import com.example.elitemcservers.service.CustomOAuth2UserService;
 import com.example.elitemcservers.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,9 +13,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService, CustomOAuth2UserService customOAuth2UserService, CustomLoginSuccessHandler customLoginSuccessHandler) {
         this.userDetailsService = userDetailsService;
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.customLoginSuccessHandler = customLoginSuccessHandler;
     }
 
     @Bean
@@ -23,18 +28,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/", "/register", "/login", "/donateus", "/api/donate", "/banned",
-                                "/css/**", "/img/**", "/fonts/**", "/static/**", "/servers/**"
+                                "/css/**", "/img/**", "/fonts/**", "/static/**", "/servers/**", "/h2-console/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login")  // Kiedy użytkownik kliknie 'Zaloguj się przez Google', zostanie przekierowany na /login
-                        .defaultSuccessUrl("/")  // Po pomyślnym zalogowaniu, użytkownik zostanie przekierowany na stronę główną
-                        .permitAll()
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login") // ← TO DODAJ
+                        .userInfoEndpoint(info -> info
+                                .oidcUserService(customOAuth2UserService)
+                        )
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .loginProcessingUrl("/login") // ← opcjonalnie, ale zalecane
                         .defaultSuccessUrl("/")
+                        .successHandler(customLoginSuccessHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -49,8 +57,8 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+//    }
 }

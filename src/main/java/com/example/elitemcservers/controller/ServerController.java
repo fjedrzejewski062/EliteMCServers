@@ -8,6 +8,7 @@ import com.example.elitemcservers.facade.ServerFacade;
 import com.example.elitemcservers.facade.UserFacade;
 import com.example.elitemcservers.service.CommentService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,57 +40,57 @@ public class ServerController {
 
     @PostMapping("/create")
     public String createServer(@Valid @ModelAttribute("server") Server server,
-                             BindingResult result,
-                             @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
-                             Model model) {
+                               BindingResult result,
+                               Authentication authentication,   // <-- zmiana tu
+                               Model model) {
         if (result.hasErrors()) {
             model.addAttribute("server", server); // ← potrzebne przy błędach
             return "createServer"; // ← wróć do formularza z błędami
         }
 
-        String email = currentUser.getUsername();
-        User user = userFacade.findByEmail(email).orElse(null);
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+        if (userOpt.isEmpty()) {
+            return "redirect:/login";
+        }
 
+        User user = userOpt.get();
         serverFacade.createServer(server, user);
-        return "redirect:/";
+        return "createServer_success";
     }
+
 
     @GetMapping("/{id}")
     public String serverDetail(@PathVariable Long id,
-                               @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                               Authentication authentication,
                                Model model) {
         Server server = serverFacade.findById(id);
         if (server == null) {
             return "redirect:/";
         }
 
-
         model.addAttribute("server", server);
         model.addAttribute("comment", new Comment());
 
-        if (currentUser != null) {
-            model.addAttribute("currentUserEmail", currentUser.getUsername());
-        }
+        userFacade.getAuthenticatedUser(authentication)
+                .ifPresent(user -> model.addAttribute("currentUserEmail", user.getEmail()));
 
         return "serverDetail";
     }
 
     @PostMapping("/{id}/vote")
     public String voteServer(@PathVariable Long id,
-                           @RequestParam("vote") String vote,
-                           @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser) {
-        if (currentUser == null) {
-            return "redirect:/login"; // lub przekierowanie z komunikatem
+                             @RequestParam("vote") String vote,
+                             Authentication authentication) {
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+        if (userOpt.isEmpty()) {
+            return "redirect:/login";
         }
 
         Server server = serverFacade.findById(id);
         if (server != null) {
-            Optional<User> userOptional = userFacade.findByEmail(currentUser.getUsername());
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                serverFacade.voteServer(server, vote, user);
-            }
+            serverFacade.voteServer(server, vote, userOpt.get());
         }
+
         return "redirect:/";
     }
 
@@ -97,9 +98,8 @@ public class ServerController {
     public String addComment(@PathVariable Long id,
                              @Valid @ModelAttribute("comment") Comment newComment,
                              BindingResult result,
-                             @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                             Authentication authentication,
                              Model model) {
-        // Logika dodawania komentarza
         Server server = serverFacade.findById(id);
         if (server == null) {
             return "redirect:/";
@@ -111,18 +111,14 @@ public class ServerController {
             return "serverDetail";
         }
 
-        if (currentUser == null) {
-            return "redirect:/login";
-        }
-
-        User user = userFacade.findByEmail(currentUser.getUsername()).orElse(null);
-        if (user == null) {
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+        if (userOpt.isEmpty()) {
             return "redirect:/login";
         }
 
         // Dodawanie komentarza
         newComment.setId(null); // ensure we are adding a new comment
-        serverFacade.addComment(server, newComment, user);
+        serverFacade.addComment(server, newComment, userOpt.get());
         commentFacade.save(newComment);
 
         return "redirect:/servers/" + id;
@@ -130,77 +126,84 @@ public class ServerController {
 
     @GetMapping("/{id}/comments/{commentId}/edit")
     public String editCommentForm(@PathVariable Long commentId,
-                                  @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                                  Authentication authentication,
                                   Model model) {
         Optional<Comment> optionalComment = commentFacade.findById(commentId);
-        if (optionalComment.isEmpty()) {
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+
+        if (optionalComment.isEmpty() || userOpt.isEmpty()) {
             return "redirect:/";
         }
 
         Comment comment = optionalComment.get();
-        if (!comment.getCreatedBy().getEmail().equals(currentUser.getUsername())) {
+        if (!comment.getCreatedBy().getEmail().equals(userOpt.get().getEmail())) {
             return "redirect:/";
         }
 
-        // Przekazujemy id komentarza, który edytujemy
         model.addAttribute("editingCommentId", commentId);
         model.addAttribute("server", comment.getServer());
-        model.addAttribute("comment", comment); // Formularz edytowania komentarza
+        model.addAttribute("comment", comment);
 
-        return "editComment"; // Z powrotem do serverDetail z formularzem edycji
+        return "editComment";
     }
 
     @PostMapping("/{id}/comments/{commentId}/edit")
     public String editCommentSubmit(@PathVariable Long commentId,
                                     @Valid @ModelAttribute("comment") Comment updatedComment,
                                     BindingResult result,
-                                    @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                                    Authentication authentication,
                                     Model model) {
         Optional<Comment> optionalComment = commentFacade.findById(commentId);
-        if (optionalComment.isEmpty()) {
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+
+        if (optionalComment.isEmpty() || userOpt.isEmpty()) {
             return "redirect:/";
         }
 
         Comment comment = optionalComment.get();
-        if (!comment.getCreatedBy().getEmail().equals(currentUser.getUsername())) {
+        if (!comment.getCreatedBy().getEmail().equals(userOpt.get().getEmail())) {
             return "redirect:/";
         }
 
         if (result.hasErrors()) {
             model.addAttribute("comment", updatedComment);
-            return "serverDetail"; // pozostań na tej samej stronie
+            return "serverDetail";
         }
 
-        // Zaktualizowanie komentarza w bazie
         comment.setContent(updatedComment.getContent());
         commentFacade.save(comment);
 
         return "redirect:/servers/" + comment.getServer().getId();
     }
 
-
     @PostMapping("/{id}/comments/{commentId}/delete")
     public String deleteComment(@PathVariable Long commentId,
-                                @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser) {
+                                Authentication authentication) {
         Optional<Comment> optionalComment = commentFacade.findById(commentId);
-        if (optionalComment.isPresent()) {
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+
+        if (optionalComment.isPresent() && userOpt.isPresent()) {
             Comment comment = optionalComment.get();
-            if (comment.getCreatedBy().getEmail().equals(currentUser.getUsername())) {
+            if (comment.getCreatedBy().getEmail().equals(userOpt.get().getEmail())) {
                 Long serverId = comment.getServer().getId();
                 commentFacade.deleteComment(commentId);
                 return "redirect:/servers/" + serverId;
             }
         }
+
         return "redirect:/";
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditServer(@PathVariable Long id, Model model,
-                                 @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
-                                 RedirectAttributes redirectAttributes){
+    public String showEditServer(@PathVariable Long id,
+                                 Model model,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
         Server server = serverFacade.findById(id);
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
 
-        if(server == null || !server.getCreatedBy().getEmail().equals(currentUser.getUsername())){
+        if (server == null || userOpt.isEmpty() ||
+                !server.getCreatedBy().getEmail().equals(userOpt.get().getEmail())) {
             redirectAttributes.addFlashAttribute("error", "This is not your server!");
             return "redirect:/servers/" + id;
         }
@@ -213,19 +216,21 @@ public class ServerController {
     public String editServer(@PathVariable Long id,
                              @Valid @ModelAttribute("server") Server updatedServer,
                              BindingResult result,
-                             @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
+                             Authentication authentication,
                              Model model,
-                             RedirectAttributes redirectAttributes){
+                             RedirectAttributes redirectAttributes) {
         Server existingServer = serverFacade.findById(id);
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
 
-        if(existingServer == null || !existingServer.getCreatedBy().getEmail().equals(currentUser.getUsername())){
+        if (existingServer == null || userOpt.isEmpty() ||
+                !existingServer.getCreatedBy().getEmail().equals(userOpt.get().getEmail())) {
             redirectAttributes.addFlashAttribute("error", "This is not your server!");
             return "redirect:/servers/" + id;
         }
 
         if (result.hasErrors()) {
-            model.addAttribute("server", updatedServer); // ← ważne!
-            return "editServer"; // ← wracamy do formularza z błędami
+            model.addAttribute("server", updatedServer);
+            return "editServer";
         }
 
         serverFacade.updateServer(existingServer, updatedServer);
@@ -234,12 +239,17 @@ public class ServerController {
 
     @GetMapping("/delete/{id}")
     public String deleteServer(@PathVariable Long id,
-                               @AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser,
-                               RedirectAttributes redirectAttributes){
+                               Authentication authentication,
+                               RedirectAttributes redirectAttributes) {
         Server server = serverFacade.findById(id);
-        if(server != null && server.getCreatedBy().getEmail().equals(currentUser.getUsername())){
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+
+        if (server != null && userOpt.isPresent() &&
+                server.getCreatedBy().getEmail().equals(userOpt.get().getEmail())) {
             serverFacade.deleteServer(id);
+            return "redirect:/";
         }
+
         redirectAttributes.addFlashAttribute("error", "This is not your server!");
         return "redirect:/servers/" + id;
     }

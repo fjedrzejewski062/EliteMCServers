@@ -81,17 +81,26 @@
         </div>
         <p>
         <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Server Name</th>
-                <th>IP Address</th>
-                <th>Server Version</th>
-                <th>Server Mode</th>
-                <th>Score</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
+        <thead>
+        <tr>
+            <th>
+                <a th:href="@{/(sortField='id', sortDirection=${reverseSortDirection})}" th:text="'ID'">ID</a>
+            </th>
+            <th>
+                <a th:href="@{/(sortField='serverName', sortDirection=${reverseSortDirection})}" th:text="'Server Name'">Server Name</a>
+            </th>
+            <th>
+                <a th:href="@{/(sortField='ipAddress', sortDirection=${reverseSortDirection})}" th:text="'IP Address'">IP Address</a>
+            </th>
+            <!-- wersja i tryb bez sortowania -->
+            <th>Server Version</th>
+            <th>Server Mode</th>
+            <th>
+                <a th:href="@{/(sortField='score', sortDirection=${reverseSortDirection})}" th:text="'Score'">Score</a>
+            </th>
+            <th>Actions</th>
+        </tr>
+        </thead>
             <tbody>
             <tr th:each="server : ${servers}">
                 <td th:text="${server.id}">ID</td>

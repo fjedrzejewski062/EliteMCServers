@@ -44,6 +44,7 @@ public class ServerService {
     }
 
     public Server updateServer(Server server){
+        server.setUpdatedAt(LocalDateTime.now());
         return serverRepository.save(server);
     }
 
@@ -122,7 +123,4 @@ public class ServerService {
         // Wykonaj zapytanie z filtrami
         return serverRepository.findAll(spec, pageable);
     }
-
-
-
 }

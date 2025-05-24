@@ -3,6 +3,7 @@ package com.example.elitemcservers.facade;
 import com.example.elitemcservers.entity.User;
 import com.example.elitemcservers.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,5 +52,8 @@ public class UserFacade {
 
     public void deleteUserAccount(User user) {
         userService.softDelete(user);
+    }
+    public Optional<User> getAuthenticatedUser(Authentication authentication) {
+        return userService.getAuthenticatedUser(authentication);
     }
 }

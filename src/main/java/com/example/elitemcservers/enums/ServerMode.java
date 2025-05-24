@@ -1,30 +1,33 @@
 package com.example.elitemcservers.enums;
 
+import com.example.elitemcservers.entity.Server;
+
+import java.util.Comparator;
+
 public enum ServerMode {
-    SURVIVAL("Survival"),
-    CREATIVE("Creative"),
     ADVENTURE("Adventure"),
-    HARDCORE("Hardcore"),
     ANARCHY_SMP("Anarchy SMP"),
+    CREATIVE("Creative"),
+    EARTH("Earth"),
     FACTIONS("Factions"),
-    SKYBLOCK("Skyblock"),
-    PRISON("Prison"),
+    HARDCORE("Hardcore"),
     KITPVP("KitPVP"),
     MINIGAMES("Minigames"),
-    EARTH("Earth"),
-    ROLEPLAY("Roleplay"),
-    VANILLA("Vanilla"),
     MODDED("Modded"),
-    PIXELMON("Pixelmon");
+    PIXELMON("Pixelmon"),
+    PRISON("Prison"),
+    PVP("PVP"),
+    ROLEPLAY("Roleplay"),
+    SKYBLOCK("Skyblock"),
+    SURVIVAL("Survival"),
+    VANILLA("Vanilla");
 
     private final String modeName;
 
-    // Konstruktor
     ServerMode(String modeName) {
         this.modeName = modeName;
     }
 
-    // Metoda zwracająca ładniejszą nazwę trybu
     public String getModeName() {
         return this.modeName;
     }

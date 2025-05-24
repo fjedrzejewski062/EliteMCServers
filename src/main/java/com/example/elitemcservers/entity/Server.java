@@ -18,11 +18,17 @@ public class Server {
     private Long id;
 
     @Column(nullable = true)
-    @Pattern(regexp = "^[a-zA-Z0-9 .\\-]{3,50}$", message = "Server name must be 3-50 characters and contain only letters, numbers, spaces, dots, or hyphens")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9 .\\-]{0,50}$",
+            message = "Server name must be up to 50 characters and contain only letters, numbers, spaces, dots, or hyphens"
+    )
     private String serverName;
 
     @Column(nullable = true)
-    @Pattern(regexp = "^[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,6}$|^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|$)){4}$", message = "Invalid IP address or domain")
+    @Pattern(
+            regexp = "^[a-zA-Z0-9 .\\-]{0,50}$",
+            message = "IP address or domain must be up to 50 characters and contain only letters, numbers, spaces, dots, or hyphens"
+    )
     private String ipAddress;
 
     // Wersja - pole enum (od jakiej do jakiej)

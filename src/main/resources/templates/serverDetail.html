@@ -9,7 +9,7 @@
 <div th:replace="fragments :: header"></div>
 <div class="container centered-container">
     <div class="content">
-        <h2 th:text="${server.serverName} + ' - Szczegóły'">Server Details</h2>
+        <h2 th:text="${server.serverName} + ' - Details'">Server Details</h2>
         <p><strong>ID:</strong> <span th:text="${server.id}">ID</span></p>
         <p><strong>Server Name:</strong> <span th:text="${server.serverName}">Server Name</span></p>
         <p><strong>IP Address:</strong> <span th:text="${server.ipAddress}">IP Address</span></p>
@@ -27,7 +27,7 @@
             <p th:text="${error}" class="error-message"></p>
         </div>
 
-        <a th:href="@{'/servers/edit/' + ${server.id}}" class="btn">Edytuj Serwer</a>
+        <a th:href="@{'/servers/edit/' + ${server.id}}" class="btn">Edit Server</a>
         <a th:href="@{'/servers/delete/' + ${server.id}}" class="btn btn-delete"
            onclick="return confirm('Are you sure?');">Delete</a>
 

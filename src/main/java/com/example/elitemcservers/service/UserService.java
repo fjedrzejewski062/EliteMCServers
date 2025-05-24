@@ -5,7 +5,10 @@ import com.example.elitemcservers.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +27,7 @@ public class UserService {
     public User register(User user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRegistrationDate(LocalDateTime.now());
+        user.setLastLogin(LocalDateTime.now());
         user.setBanned(false);
         user.setDeleted(false);
         return userRepository.save(user);
@@ -94,5 +98,27 @@ public class UserService {
         }
 
         return userRepository.findAll(spec, pageable);
+    }
+
+    public Optional<User> getAuthenticatedUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
+        }
+
+        String email = null;
+
+        if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
+            Object principal = oauthToken.getPrincipal();
+            if (principal instanceof OidcUser oidcUser) {
+                email = oidcUser.getEmail();
+            } else {
+                email = oauthToken.getPrincipal().getAttribute("email");
+            }
+        } else {
+            email = authentication.getName();
+        }
+
+        if (email == null) return Optional.empty();
+        return findByEmail(email);
     }
 }

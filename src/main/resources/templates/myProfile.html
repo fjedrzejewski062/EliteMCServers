@@ -9,15 +9,19 @@
 <div class="container centered-container">
     <div class="content">
         <h2>My Profile</h2>
-        <div>
+        <div th:if="${user != null}">
             <img th:src="@{${user.profileImage}}" alt="Profile Image" class="profile-img" />
             <p><strong>Username:</strong> <span th:text="${user.username}">Username</span></p>
             <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
-            <p><strong>Registration date:</strong> <span th:text="${user.registrationDate}">data</span></p>
-            <p><strong>Last login:</strong> <span th:text="${user.lastLogin}">data</span></p></div>
+            <p><strong>Registration date:</strong> <span th:text="${#temporals.format(user.registrationDate, 'yyyy-MM-dd HH:mm')}">data</span></p>
+            <p><strong>Last login:</strong> <span th:text="${#temporals.format(user.lastLogin, 'yyyy-MM-dd HH:mm')}">data</span></p>
+        </div>
+        <div th:if="${user == null}">
+            <p>User not found.</p>
+        </div>
         <br/>
         <form th:action="@{/deleteaccount}" method="post" onsubmit="return confirm('Are you sure you want to delete this account?');">
-            <button type="submit" class="btn btn-delete">Usuń konto</button>
+            <button type="submit" class="btn btn-delete">Delete account</button>
         </form>
     </div>
 </div>

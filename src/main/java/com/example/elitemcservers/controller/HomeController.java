@@ -54,15 +54,11 @@ public class HomeController {
         }
 
         // Walidacja ipAddress (IP v4 lub domena)
-        if (ipAddress != null) {
+        if (ipAddress != null && !ipAddress.isEmpty()) {
             ipAddress = ipAddress.trim();
-            if (!ipAddress.isEmpty()) {
-                boolean isIPv4 = ipAddress.matches("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|$)){4}$");
-                boolean isDomain = ipAddress.matches("^[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,}$");
-                if (!isIPv4 && !isDomain) {
-                    redirectAttributes.addFlashAttribute("error", "Invalid IP address or domain name.");
-                    return "redirect:/";
-                }
+            if (!ipAddress.matches("^[a-zA-Z0-9 .\\-]{0,50}$")) {
+                redirectAttributes.addFlashAttribute("error", "IP address or domain must be up to 50 characters and contain only letters, numbers, spaces, dots, or hyphens.");
+                return "redirect:/";
             }
         }
 

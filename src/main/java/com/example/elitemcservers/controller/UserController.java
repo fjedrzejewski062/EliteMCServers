@@ -5,7 +5,11 @@ import com.example.elitemcservers.facade.UserFacade;
 import com.example.elitemcservers.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,6 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.security.Principal;
+import java.util.Optional;
+
 @Controller
 public class UserController {
     private final UserFacade userFacade;
@@ -49,24 +57,24 @@ public class UserController {
     public String showLoginForm(){
         return "login";
     }
-
     @GetMapping("/myprofile")
-    public String showProfile(Model model,
-                              @AuthenticationPrincipal
-                              org.springframework.security.core.userdetails.User currentUser){
-        String email = currentUser.getUsername();
-        User user = userFacade.findByEmail(email).orElse(null);
-        model.addAttribute("user", user);
+    public String showProfile(Model model, Authentication authentication) {
+        Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
+        if (userOpt.isEmpty()) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("user", userOpt.get());
         return "myProfile";
     }
 
+
+
     @PostMapping("/deleteaccount")
-    public String deleteAccount(@AuthenticationPrincipal org.springframework.security.core.userdetails.User currentUser){
-        String email = currentUser.getUsername();
-        User user = userFacade.findByEmail(email).orElse(null);
-        if(user != null){
-            userFacade.deleteUserAccount(user);
-        }
+    public String deleteAccount(Authentication authentication) {
+        userFacade.getAuthenticatedUser(authentication)
+                .ifPresent(userFacade::deleteUserAccount);
+
         return "redirect:/logout";
     }
 }

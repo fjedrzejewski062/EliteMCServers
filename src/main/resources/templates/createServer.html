@@ -23,7 +23,9 @@
             <label for="version">Server Version:</label>
             <select id="version" th:field="*{version}" required>
                 <option th:each="v : ${T(com.example.elitemcservers.enums.ServerVersion).values()}"
-                        th:value="${v}" th:text="${v}">Version</option>
+                        th:value="${v}"
+                        th:text="${v.versionName}">
+                </option>
             </select><br/>
 
             <label for="mode">Server Mode:</label>

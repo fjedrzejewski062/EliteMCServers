@@ -29,7 +29,7 @@ public class User {
 
     @NotEmpty(message = "Password is required")
     @Size(min = 8, message = "Password must be at least 8 characters long")
-    @Pattern(regexp = "^[\\p{L}\\p{N}@#$%^&+=!?.*()-]{8,}$", message = "Password contains invalid characters")
+    @Pattern(regexp = "^.{8,}$", message = "Password must be at least 8 characters long")
     private String password;
 
     private String profileImage = "/img/default_profile.png";
@@ -46,6 +46,8 @@ public class User {
 
     @OneToMany(mappedBy = "createdBy")
     private List<Server> servers;
+
+    // Gettery i settery
 
     public Long getId() {
         return id;
