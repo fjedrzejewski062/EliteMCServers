@@ -234,7 +234,7 @@ public class ServerController {
         }
 
         serverFacade.updateServer(existingServer, updatedServer);
-        return "redirect:/";
+        return "redirect:/servers/" + id;
     }
 
     @GetMapping("/delete/{id}")

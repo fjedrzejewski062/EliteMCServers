@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>User Advanced - Admin Panel</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="admin/adminFragments :: header"></div>
+<div class="container centered-container">
+    <div class="content">
+        <h2>User Advanced</h2>
+        <p>User: <strong th:text="${user.username}">username</strong></p>
+        <form th:action="@{'/admin/users/advanced/' + ${user.id}}" method="post">
+            <label>Role:</label>
+            <select name="role">
+                <option value="USER" th:selected="${user.role=='USER'}">USER</option>
+                <option value="ADMIN" th:selected="${user.role=='ADMIN'}">ADMIN</option>
+            </select>
+            <br/><br/>
+            <label>
+                <input type="checkbox" name="ban" th:checked="${user.banned}"/> Ban User
+            </label>
+            <br/><br/>
+            <button type="submit" class="btn">Save Changes</button>
+        </form>
+        <br/>
+        <form th:action="@{'/admin/users/delete/' + ${user.id}}" method="post"
+              onsubmit="return confirm('Are you sure you want to delete this user and all their BPMs and Keys?');">
+            <button type="submit" class="btn btn-delete">Delete User</button>
+        </form>
+        <br/><br/><br/>
+        <a th:href="@{/admin/users}" class="btn">Back to Users</a>
+    </div>
+</div>
+<div th:replace="admin/adminFragments :: footer"></div>
+</body>
+</html>

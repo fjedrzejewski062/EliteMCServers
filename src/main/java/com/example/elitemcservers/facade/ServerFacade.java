@@ -5,6 +5,7 @@ import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.entity.ServerVote;
 import com.example.elitemcservers.entity.User;
 import com.example.elitemcservers.enums.ServerMode;
+import com.example.elitemcservers.enums.ServerStatus;
 import com.example.elitemcservers.enums.ServerVersion;
 import com.example.elitemcservers.repository.ServerRepository;
 import com.example.elitemcservers.repository.ServerVoteRepository;
@@ -108,5 +109,51 @@ public class ServerFacade {
                                             Integer maxScore,
                                             Pageable pageable) {
         return serverService.findFilteredServers(createdBy, serverName, ipAddress, version, mode, minScore, maxScore, pageable);
+    }
+
+    public Page<Server> findFilteredServersAdmin(User createdBy,
+                                                 String serverName,
+                                                 String ipAddress,
+                                                 ServerVersion version,
+                                                 ServerMode mode,
+                                                 Integer minScore,
+                                                 Integer maxScore,
+                                                 ServerStatus status,
+                                                 LocalDateTime createdAfter,
+                                                 LocalDateTime createdBefore,
+                                                 LocalDateTime updatedAfter,
+                                                 LocalDateTime updatedBefore,
+                                            Pageable pageable) {
+        return serverService.findFilteredServersAdmin(createdBy, serverName, ipAddress, version, mode, minScore, maxScore, status, createdAfter, createdBefore, updatedAfter, updatedBefore, pageable);
+    }
+
+    public Page<Server> findFilteredServersForUser(Long createdBy,
+                                                   String serverName,
+                                                   String ipAddress,
+                                                   ServerVersion version,
+                                                   ServerMode mode,
+                                                   Integer minScore,
+                                                   Integer maxScore,
+                                                   ServerStatus status,
+                                                   LocalDateTime createdAfter,
+                                                   LocalDateTime createdBefore,
+                                                   LocalDateTime updatedAfter,
+                                                   LocalDateTime updatedBefore,
+                                                   Pageable pageable) {
+        return serverService.findFilteredServersForUser(
+                createdBy,
+                serverName,
+                ipAddress,
+                version,
+                mode,
+                minScore,
+                maxScore,
+                status,
+                createdAfter,
+                createdBefore,
+                updatedAfter,
+                updatedBefore,
+                pageable
+        );
     }
 }

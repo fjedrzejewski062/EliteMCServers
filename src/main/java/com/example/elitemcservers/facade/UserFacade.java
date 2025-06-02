@@ -3,6 +3,8 @@ package com.example.elitemcservers.facade;
 import com.example.elitemcservers.entity.User;
 import com.example.elitemcservers.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -46,12 +48,25 @@ public class UserFacade {
         return userService.register(user);
     }
 
+    public User update(User user) {
+        return userService.update(user);
+    }
+
     public Optional<User> findByEmail(String email) {
         return userService.findByEmail(email);
     }
+    public User findById(Long id) {
+        return userService.findById(id);
+    }
 
-    public void deleteUserAccount(User user) {
+    public void softDelete(User user) {
         userService.softDelete(user);
+    }
+    public Page<User> findFilteredUsers(String username, String email, String role, Boolean banned, Boolean deleted,
+                                        String startDateRegistration, String endDateRegistration,
+                                        String startDateLastLogin, String endDateLastLogin, Pageable pageable) {
+        return userService.findFilteredUsers(username, email, role, banned, deleted,
+                startDateRegistration, endDateRegistration, startDateLastLogin, endDateLastLogin, pageable);
     }
     public Optional<User> getAuthenticatedUser(Authentication authentication) {
         return userService.getAuthenticatedUser(authentication);

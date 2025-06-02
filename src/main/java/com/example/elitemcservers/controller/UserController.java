@@ -73,7 +73,7 @@ public class UserController {
     @PostMapping("/deleteaccount")
     public String deleteAccount(Authentication authentication) {
         userFacade.getAuthenticatedUser(authentication)
-                .ifPresent(userFacade::deleteUserAccount);
+                .ifPresent(userFacade::softDelete);
 
         return "redirect:/logout";
     }

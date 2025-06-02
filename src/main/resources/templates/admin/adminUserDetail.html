@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8" />
+    <title>EliteMCServers - User Profile</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="fragments :: header"></div>
+<div class="container centered-container">
+    <div class="content">
+        <h2>User Profile</h2>
+        <div th:if="${user != null}">
+            <img th:src="@{${user.profileImage}}" alt="Profile Image" class="profile-img" />
+            <p><strong>Username:</strong> <span th:text="${user.username}">Username</span></p>
+            <p><strong>Email:</strong> <span th:text="${user.email}">email@example.com</span></p>
+            <p><strong>Registration date:</strong> <span th:text="${#temporals.format(user.registrationDate, 'yyyy-MM-dd HH:mm')}">date</span></p>
+            <p><strong>Last login:</strong> <span th:text="${#temporals.format(user.lastLogin, 'yyyy-MM-dd HH:mm')}">date</span></p>
+        </div>
+        <div th:if="${user == null}">
+            <p>User not found.</p>
+        </div>
+        <br/>
+        <a th:href="@{'/admin/users/advanced/' + ${user.id}}" class="btn">Advanced</a>
+        <a th:href="@{/admin/users}" class="btn">Back to Users</a>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</body>
+</html>

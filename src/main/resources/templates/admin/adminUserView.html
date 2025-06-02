@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="admin/adminFragments :: header"></div>
+<div class="container">
+    <div class="content">
+        <div class="header-container">
+            <h2>All Users</h2>
+        </div>
+        <form method="get" th:action="@{/admin/users}" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Search User:</label>
+                    <input type="text" name="name" th:value="${param.name}" class="small-input">
+                </div>
+                <br>
+
+                <div class="filter-group">
+                    <label>Search Email:</label>
+                    <input type="text" name="email" th:value="${param.email}" class="small-input">
+                </div>
+
+                <div class="filter-group">
+                    <label>Search Role:</label>
+                    <select name="role" class="small-input">
+                        <option value="">All</option>
+                        <option value="USER" th:selected="${param.role == 'USER'}">USER</option>
+                        <option value="ADMIN" th:selected="${param.role == 'ADMIN'}">ADMIN</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>
+                        Banned Users
+                        <input type="checkbox" name="banned" th:checked="${param.banned != null}" value="true">
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <label>
+                        Deleted Users
+                        <input type="checkbox" name="deleted" th:checked="${param.deleted != null}" value="true">
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <label>From Registration Date:</label>
+                    <input type="date" name="startDateRegistration" th:value="${param.startDateRegistration}" class="small-input">
+                </div>
+
+                <div class="filter-group">
+                    <label>To Registration Date:</label>
+                    <input type="date" name="endDateRegistration" th:value="${param.endDateRegistration}" class="small-input">
+                </div>
+
+                <div class="filter-group">
+                    <label>Last Login From:</label>
+                    <input type="date" name="startDateLastLogin" th:value="${param.startDateLastLogin}" class="small-input">
+                </div>
+
+                <div class="filter-group">
+                    <label>Last Login To:</label>
+                    <input type="date" name="endDateLastLogin" th:value="${param.endDateLastLogin}" class="small-input">
+                </div>
+            </div>
+
+            <div class="form-error" th:if="${error}">
+                <p th:text="${error}"></p>
+            </div>
+
+            <div class="filter-group">
+                <button type="submit" class="btn">Filter</button>
+                <a th:href="@{/admin/users}" class="btn btn-clear spaced-btn">Clear Filters</a>
+            </div>
+        </form>
+        <br>
+        <div class="table-container">
+
+            <table>
+                <thead>
+                <tr>
+                    <th><a th:href="@{/admin/users(sortField='id', sortDirection=${reverseSortDirection})}" th:text="'ID'">ID</a></th>
+                    <th><a th:href="@{/admin/users(sortField='username', sortDirection=${reverseSortDirection})}" th:text="'Username'">Username</a></th>
+                    <th><a th:href="@{/admin/users(sortField='email', sortDirection=${reverseSortDirection})}" th:text="'Email'">Email</a></th>
+                    <th>Role</th>
+                    <th>Banned</th>
+                    <th>Deleted</th>
+                    <th><a th:href="@{/admin/users(sortField='registrationDate', sortDirection=${reverseSortDirection})}" th:text="'Registration Date'">Registration date</a></th>
+                    <th><a th:href="@{/admin/users(sortField='lastLogin', sortDirection=${reverseSortDirection})}" th:text="'Last Login'">Last login</a></th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}">1</td>
+                    <td th:text="${user.username}">username</td>
+                    <td th:text="${user.email}">email@example.com</td>
+                    <td th:text="${user.role}">User</td>
+                    <td th:text="${user.banned}">false</td>
+                    <td th:text="${user.deleted}">false</td>
+                    <td th:text="${#temporals.format(user.registrationDate, 'yyyy-MM-dd HH:mm')}">date</td>
+                    <td th:text="${#temporals.format(user.lastLogin, 'yyyy-MM-dd HH:mm')}">date</td>
+                    <td class="actions">
+                        <a th:href="@{/admin/users/{id}(id=${user.id})}" class="btn">Details</a>
+                        <a th:href="@{'/admin/users/' + ${user.id} + '/servers'}" class="btn">View Servers</a>
+                        <a th:href="@{'/admin/users/advanced/' + ${user.id}}" class="btn">Advanced</a>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="pagination">
+            <span th:if="${currentPage > 0}">
+                <a th:href="@{/admin/servers(page=${currentPage - 1}, sortField=${sortField}, sortDirection=${sortDirection})}">&laquo; Previous</a>
+            </span>
+            <span>Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span></span>
+            <span th:if="${currentPage < totalPages - 1}">
+                <a th:href="@{/admin/servers(page=${currentPage + 1}, sortField=${sortField}, sortDirection=${sortDirection})}">Next &raquo;</a>
+            </span>
+        </div>
+    </div>
+</div>
+<div th:replace="admin/adminFragments :: footer"></div>
+</body>
+</html>

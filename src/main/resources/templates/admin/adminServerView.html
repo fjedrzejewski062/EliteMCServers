@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <title>EliteMCServers</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div th:replace="admin/adminFragments :: header"></div>
+<div class="container centered-container">
+    <div class="content">
+        <h2>All Servers</h2>
+        <form method="get" th:action="@{/admin/servers}" class="filter-form">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Server Name:</label>
+                    <input type="text" name="serverName" th:value="${serverName}" class="small-input">
+                </div>
+                <div class="filter-group">
+                    <label>IP Address:</label>
+                    <input type="text" name="ipAddress" th:value="${ipAddress}" class="small-input">
+                </div>
+                <div class="filter-group">
+                    <label>Version:</label>
+                    <select name="versionId" class="small-input">
+                        <option value="">-- All --</option>
+                        <option th:each="v : ${versions}"
+                                th:value="${v.ordinal()}"
+                                th:text="${v.versionName}"
+                                th:selected="${versionId == v.ordinal()}">
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Mode:</label>
+                    <select name="modeId" class="small-input">
+                        <option value="">-- All --</option>
+                        <option th:each="m : ${modes}"
+                                th:value="${m.ordinal()}"
+                                th:text="${m.name()}"
+                                th:selected="${modeId == m.ordinal()}">
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Status:</label>
+                    <select name="statusId" class="small-input">
+                        <option value="">-- All --</option>
+                        <option th:each="s : ${statuses}"
+                                th:value="${s.ordinal()}"
+                                th:text="${s.name()}"
+                                th:selected="${statusId == s.ordinal()}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Min Score:</label>
+                    <input type="number" name="minScore" th:value="${minScore}" class="small-input">
+                </div>
+                <div class="filter-group">
+                    <label>Max Score:</label>
+                    <input type="number" name="maxScore" th:value="${maxScore}" class="small-input">
+                </div>
+                <div class="filter-group">
+                    <label>Created After:</label>
+                    <input type="datetime-local" name="startDate"
+                           th:value="${startDate}" class="small-input">
+                </div>
+                <div class="filter-group">
+                    <label>Created Before:</label>
+                    <input type="datetime-local" name="endDate"
+                           th:value="${endDate}" class="small-input">
+                </div>
+            </div>
+
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Updated After:</label>
+                    <input type="datetime-local" name="updatedStartDate"
+                           th:value="${updatedStartDate}" class="small-input">
+                </div>
+                <div class="filter-group">
+                    <label>Updated Before:</label>
+                    <input type="datetime-local" name="updatedEndDate"
+                           th:value="${updatedEndDate}" class="small-input">
+                </div>
+            </div>
+
+            <div class="form-error" th:if="${error}">
+                <p th:text="${error}"></p>
+            </div>
+
+            <div class="filter-group">
+                <button type="submit" class="btn">Filter</button>
+                <a th:href="@{/admin/servers}" class="btn btn-clear spaced-btn">Clear Filters</a>
+            </div>
+        </form>
+        <p>
+        <table>
+            <thead>
+            <tr>
+                <th><a th:href="@{/admin/servers(sortField='id', sortDirection=${reverseSortDirection})}" th:text="'ID'">ID</a></th>
+                <th><a th:href="@{/admin/servers(sortField='serverName', sortDirection=${reverseSortDirection})}" th:text="'Server Name'">Server Name</a></th>
+                <th><a th:href="@{/admin/servers(sortField='ipAddress', sortDirection=${reverseSortDirection})}" th:text="'IP Address'">IP Address</a></th>
+                <th>Server Version</th>
+                <th>Server Mode</th>
+                <th><a th:href="@{/admin/servers(sortField='score', sortDirection=${reverseSortDirection})}" th:text="'Score'">Score</a></th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="server : ${servers}">
+                <td th:text="${server.id}">ID</td>
+                <td th:text="${server.serverName}">Server Name</td>
+                <td th:text="${server.ipAddress}">IP Address</td>
+                <td th:text="${server.version.versionName}">Server Version</td>
+                <td th:text="${server.mode.modeName}">Server Mode</td>
+                <td th:text="${server.score}">0</td>
+                <td>
+                    <a th:href="@{'/admin/servers/' + ${server.id}}" class="btn">Details</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination" th:if="${totalPages > 1}" style="margin-top: 1em; text-align: center;">
+            <a th:if="${currentPage > 0}"
+               th:href="@{/admin/servers(page=${currentPage - 1}, serverName=${serverName}, ipAddress=${ipAddress}, versionId=${versionId}, modeId=${modeId}, minScore=${minScore}, maxScore=${maxScore}, startDate=${startDate}, endDate=${endDate}, sortField=${sortField}, sortDirection=${sortDirection})}"
+               class="btn">Previous</a>
+            <span>Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span></span>
+            <a th:if="${currentPage + 1 < totalPages}"
+               th:href="@{/admin/servers(page=${currentPage + 1}, serverName=${serverName}, ipAddress=${ipAddress}, versionId=${versionId}, modeId=${modeId}, minScore=${minScore}, maxScore=${maxScore}, startDate=${startDate}, endDate=${endDate}, sortField=${sortField}, sortDirection=${sortDirection})}"
+               class="btn">Next</a>
+        </div>
+        </p>
+    </div>
+</div>
+<div th:replace="admin/adminFragments :: footer"></div>
+</body>
+</html>

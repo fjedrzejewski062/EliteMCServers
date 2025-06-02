@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<div th:fragment="header">
+    <header class="main-header admin-header">
+        <h1><a th:href="@{/admin/dashboard}">EliteMCServers - Admin Panel</a></h1>
+        <nav>
+            <ul>
+                <li>
+                    <a th:href="@{/}">Back to Site</a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/dashboard}">Dashboard</a>
+                </li>
+                <li>
+                    <a th:href="@{/logout}">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+</div>
+
+<div th:fragment="footer">
+    <footer class="main-footer admin-footer">
+        <p>&copy; Admin Panel - BeatHelper</p>
+    </footer>
+</div>
+</body>
+</html>

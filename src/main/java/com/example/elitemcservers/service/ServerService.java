@@ -123,4 +123,166 @@ public class ServerService {
         // Wykonaj zapytanie z filtrami
         return serverRepository.findAll(spec, pageable);
     }
+
+    public Page<Server> findFilteredServersAdmin(User createdBy,
+                                                 String serverName,
+                                                 String ipAddress,
+                                                 ServerVersion version,
+                                                 ServerMode mode,
+                                                 Integer minScore,
+                                                 Integer maxScore,
+                                                 ServerStatus status,
+                                                 LocalDateTime createdAfter,
+                                                 LocalDateTime createdBefore,
+                                                 LocalDateTime updatedAfter,
+                                                 LocalDateTime updatedBefore,
+                                                 Pageable pageable) {
+
+        Specification<Server> spec = Specification.where(null);
+
+        if (serverName != null && !serverName.isEmpty()) {
+            spec = spec.and((root, query, builder) ->
+                    builder.like(builder.lower(root.get("serverName")), "%" + serverName.toLowerCase() + "%"));
+        }
+
+        if (ipAddress != null && !ipAddress.isEmpty()) {
+            spec = spec.and((root, query, builder) ->
+                    builder.like(builder.lower(root.get("ipAddress")), "%" + ipAddress.toLowerCase() + "%"));
+        }
+
+        if (version != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("version"), version));
+        }
+
+        if (mode != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("mode"), mode));
+        }
+
+        if (minScore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.greaterThanOrEqualTo(root.get("score"), minScore));
+        }
+
+        if (maxScore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.lessThanOrEqualTo(root.get("score"), maxScore));
+        }
+
+        if (status != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("status"), status));
+        }
+
+        if (createdAfter != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.greaterThanOrEqualTo(root.get("createdAt"), createdAfter));
+        }
+
+        if (createdBefore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.lessThanOrEqualTo(root.get("createdAt"), createdBefore));
+        }
+
+        if (updatedAfter != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.greaterThanOrEqualTo(root.get("updatedAt"), updatedAfter));
+        }
+
+        if (updatedBefore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.lessThanOrEqualTo(root.get("updatedAt"), updatedBefore));
+        }
+
+        if (createdBy != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("createdBy"), createdBy));
+        }
+
+        return serverRepository.findAll(spec, pageable);
+    }
+
+    public Page<Server> findFilteredServersForUser(Long createdBy,
+                                                   String serverName,
+                                                   String ipAddress,
+                                                   ServerVersion version,
+                                                   ServerMode mode,
+                                                   Integer minScore,
+                                                   Integer maxScore,
+                                                   ServerStatus status,
+                                                   LocalDateTime createdAfter,
+                                                   LocalDateTime createdBefore,
+                                                   LocalDateTime updatedAfter,
+                                                   LocalDateTime updatedBefore,
+                                                   Pageable pageable) {
+
+        Specification<Server> spec = Specification.where(null);
+
+        // ✅ Filtruj po użytkowniku
+        if (createdBy != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("createdBy").get("id"), createdBy));
+        }
+
+        if (serverName != null && !serverName.isEmpty()) {
+            spec = spec.and((root, query, builder) ->
+                    builder.like(builder.lower(root.get("serverName")), "%" + serverName.toLowerCase() + "%"));
+        }
+
+        if (ipAddress != null && !ipAddress.isEmpty()) {
+            spec = spec.and((root, query, builder) ->
+                    builder.like(builder.lower(root.get("ipAddress")), "%" + ipAddress.toLowerCase() + "%"));
+        }
+
+        if (version != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("version"), version));
+        }
+
+        if (mode != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("mode"), mode));
+        }
+
+        if (minScore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.greaterThanOrEqualTo(root.get("score"), minScore));
+        }
+
+        if (maxScore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.lessThanOrEqualTo(root.get("score"), maxScore));
+        }
+
+        if (status != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.equal(root.get("status"), status));
+        }
+
+        if (createdAfter != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.greaterThanOrEqualTo(root.get("createdAt"), createdAfter));
+        }
+
+        if (createdBefore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.lessThanOrEqualTo(root.get("createdAt"), createdBefore));
+        }
+
+        if (updatedAfter != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.greaterThanOrEqualTo(root.get("updatedAt"), updatedAfter));
+        }
+
+        if (updatedBefore != null) {
+            spec = spec.and((root, query, builder) ->
+                    builder.lessThanOrEqualTo(root.get("updatedAt"), updatedBefore));
+        }
+
+        return serverRepository.findAll(spec, pageable);
+    }
+
+
+
 }
