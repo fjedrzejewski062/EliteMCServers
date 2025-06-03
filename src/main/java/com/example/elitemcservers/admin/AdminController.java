@@ -9,15 +9,12 @@ import com.example.elitemcservers.enums.ServerVersion;
 import com.example.elitemcservers.facade.CommentFacade;
 import com.example.elitemcservers.facade.ServerFacade;
 import com.example.elitemcservers.facade.UserFacade;
-import com.example.elitemcservers.service.ServerService;
-import com.example.elitemcservers.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -314,7 +311,6 @@ public class AdminController {
             }
         }
 
-        // Niezależnie od wyniku, przekierowujemy z powrotem na stronę serwera
         return "redirect:/admin/servers/" + id;
     }
 
@@ -389,7 +385,6 @@ public class AdminController {
                                   RedirectAttributes redirectAttributes,
                                   Authentication authentication) {
 
-        // Sprawdź czy aktualnie zalogowany użytkownik ma prawo oglądać dane usera z id
         Optional<User> authUserOpt = userFacade.getAuthenticatedUser(authentication);
         if (authUserOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "User not found.");
@@ -397,34 +392,30 @@ public class AdminController {
         }
         User authUser = authUserOpt.get();
 
-        // Tutaj możesz wstawić dodatkową logikę zabezpieczeń, np. czy authUser może oglądać usera o id z URL
-
-        // Pobierz użytkownika o podanym id (np. z bazy)
         User user = userFacade.findById(id);
         if (user == null) {
             redirectAttributes.addFlashAttribute("error", "Requested user not found.");
-            return "redirect:/users";
+            return "redirect:/admin/users";
         }
 
-        // Walidacje danych wejściowych (przykład)
         if (serverName != null && !serverName.isEmpty() && !serverName.matches("^[a-zA-Z0-9 .\\-]+$")) {
             redirectAttributes.addFlashAttribute("error", "Server name can only contain letters, numbers, spaces, dots, or hyphens.");
-            return "redirect:/users/" + id + "/servers";
+            return "redirect:/admin/users/" + id + "/servers";
         }
 
         if (ipAddress != null && !ipAddress.isEmpty() && !ipAddress.matches("^[a-zA-Z0-9 .\\-]{0,50}$")) {
             redirectAttributes.addFlashAttribute("error", "Invalid IP address or domain.");
-            return "redirect:/users/" + id + "/servers";
+            return "redirect:/admin/users/" + id + "/servers";
         }
 
         if ((minScore != null && minScore < 0) || (maxScore != null && maxScore < 0)) {
             redirectAttributes.addFlashAttribute("error", "Scores must be positive.");
-            return "redirect:/users/" + id + "/servers";
+            return "redirect:/admin/users/" + id + "/servers";
         }
 
         if (minScore != null && maxScore != null && minScore > maxScore) {
             redirectAttributes.addFlashAttribute("error", "Min score cannot be greater than max score.");
-            return "redirect:/users/" + id + "/servers";
+            return "redirect:/admin/users/" + id + "/servers";
         }
 
         LocalDateTime createdAfter = null;
@@ -441,7 +432,7 @@ public class AdminController {
             }
             if (createdAfter != null && createdBefore != null && createdBefore.isBefore(createdAfter)) {
                 redirectAttributes.addFlashAttribute("error", "End date cannot be earlier than start date.");
-                return "redirect:/users/" + id + "/servers";
+                return "redirect:/admin/users/" + id + "/servers";
             }
 
             if (updatedStartDate != null && !updatedStartDate.isEmpty()) {
@@ -452,11 +443,11 @@ public class AdminController {
             }
             if (updatedAfter != null && updatedBefore != null && updatedBefore.isBefore(updatedAfter)) {
                 redirectAttributes.addFlashAttribute("error", "Update end date cannot be earlier than start date.");
-                return "redirect:/users/" + id + "/servers";
+                return "redirect:/admin/users/" + id + "/servers";
             }
         } catch (DateTimeParseException e) {
             redirectAttributes.addFlashAttribute("error", "Invalid date format. Use YYYY-MM-DDThh:mm.");
-            return "redirect:/users/" + id + "/servers";
+            return "redirect:/admin/users/" + id + "/servers";
         }
 
         if (page < 0) page = 0;
@@ -491,7 +482,6 @@ public class AdminController {
             if (statusId >= 0 && statusId < statuses.length) status = statuses[statusId];
         }
 
-        // Wywołanie metody z facade — szukamy serwerów użytkownika o podanym id
         Page<Server> serverPage = serverFacade.findFilteredServersForUser(
                 user.getId(),
                 serverName,
@@ -508,7 +498,6 @@ public class AdminController {
                 pageable
         );
 
-        // Dodanie do modelu dla widoku
         model.addAttribute("user", user);
         model.addAttribute("servers", serverPage.getContent());
         model.addAttribute("totalPages", serverPage.getTotalPages());
@@ -638,10 +627,10 @@ public class AdminController {
         User user = userFacade.findById(id);
         if (user == null) {
             model.addAttribute("error", "User not found.");
-            return "admin/dashboard";  // widok z komunikatem o błędzie
+            return "admin/dashboard";
         }
         model.addAttribute("user", user);
-        return "admin/adminUserDetail";  // widok szczegółów użytkownika
+        return "admin/adminUserDetail";
     }
 
     @GetMapping("/users/advanced/{id}")
@@ -654,10 +643,8 @@ public class AdminController {
             return "redirect:/admin/dashboard";
         }
 
-        // Pobierz aktualnego zalogowanego użytkownika (obsługa OAuth2 i standardowego)
         Optional<User> currentUserOpt = userFacade.getAuthenticatedUser(authentication);
 
-        // Jeśli użytkownik próbujący edytować to ten sam użytkownik, przekieruj z błędem
         if(currentUserOpt.isPresent() && user.getEmail().equals(currentUserOpt.get().getEmail())){
             redirectAttributes.addFlashAttribute("error", "You cannot access advanced settings for yourself.");
             return "redirect:/admin/users";
@@ -712,17 +699,13 @@ public class AdminController {
             Comment comment = optionalComment.get();
             User currentUser = userOpt.get();
 
-            // Sprawdź, czy komentarz należy do wskazanego użytkownika
             if (comment.getCreatedBy().getId().equals(userId)) {
-                // Pozwól na usunięcie jeśli to autor komentarza lub admin
                 if (comment.getCreatedBy().getEmail().equals(currentUser.getEmail()) ||
                         "ADMIN".equals(currentUser.getRole())) {
                     commentFacade.deleteComment(commentId);
                 }
             }
         }
-
-        // Zawsze przekierowuj na stronę serwera
         return "redirect:/admin/users/ " + userId + "servers/" + serverId;
     }
 

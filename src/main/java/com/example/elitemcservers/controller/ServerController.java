@@ -6,10 +6,8 @@ import com.example.elitemcservers.entity.User;
 import com.example.elitemcservers.facade.CommentFacade;
 import com.example.elitemcservers.facade.ServerFacade;
 import com.example.elitemcservers.facade.UserFacade;
-import com.example.elitemcservers.service.CommentService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -41,11 +39,11 @@ public class ServerController {
     @PostMapping("/create")
     public String createServer(@Valid @ModelAttribute("server") Server server,
                                BindingResult result,
-                               Authentication authentication,   // <-- zmiana tu
+                               Authentication authentication,
                                Model model) {
         if (result.hasErrors()) {
-            model.addAttribute("server", server); // ← potrzebne przy błędach
-            return "createServer"; // ← wróć do formularza z błędami
+            model.addAttribute("server", server);
+            return "createServer";
         }
 
         Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
@@ -116,8 +114,7 @@ public class ServerController {
             return "redirect:/login";
         }
 
-        // Dodawanie komentarza
-        newComment.setId(null); // ensure we are adding a new comment
+        newComment.setId(null);
         serverFacade.addComment(server, newComment, userOpt.get());
         commentFacade.save(newComment);
 

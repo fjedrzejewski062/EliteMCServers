@@ -57,13 +57,11 @@
             </div>
         </div>
 
-        <!-- Formularz dodawania komentarza -->
         <form th:action="@{'/servers/' + ${server.id} + '/comment'}"
               th:object="${comment}" method="post">
             <div>
                 <textarea th:field="*{content}" placeholder="Add comment..." required></textarea>
 
-                <!-- Walidacja błędu dla pola 'content' -->
                 <div th:if="${#fields.hasErrors('content')}" class="form-error">
                     <p th:each="err : ${#fields.errors('content')}" th:text="${err}" class="error-message"></p>
                 </div>

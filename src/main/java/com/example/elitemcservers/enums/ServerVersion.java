@@ -1,9 +1,5 @@
 package com.example.elitemcservers.enums;
 
-import com.example.elitemcservers.entity.Server;
-
-import java.util.Comparator;
-
 public enum ServerVersion implements Comparable<ServerVersion> {
     V1_0_0("1.0.0"),
     V1_1_0("1.1.0"),

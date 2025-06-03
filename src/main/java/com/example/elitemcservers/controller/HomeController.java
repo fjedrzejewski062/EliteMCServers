@@ -4,8 +4,6 @@ import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.enums.ServerMode;
 import com.example.elitemcservers.enums.ServerVersion;
 import com.example.elitemcservers.facade.ServerFacade;
-import com.example.elitemcservers.repository.ServerRepository;
-import com.example.elitemcservers.service.ServerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,9 +41,6 @@ public class HomeController {
                        Model model,
                        RedirectAttributes redirectAttributes) {
 
-        // --- Walidacja pól wejściowych ---
-
-        // Walidacja serverName — bez minimalnej długości, tylko znaki
         if (serverName != null && !serverName.isEmpty()) {
             if (!serverName.matches("^[a-zA-Z0-9 .\\-]+$")) {
                 redirectAttributes.addFlashAttribute("error", "Server name can only contain letters, numbers, spaces, dots, or hyphens.");
@@ -53,7 +48,6 @@ public class HomeController {
             }
         }
 
-        // Walidacja ipAddress (IP v4 lub domena)
         if (ipAddress != null && !ipAddress.isEmpty()) {
             ipAddress = ipAddress.trim();
             if (!ipAddress.matches("^[a-zA-Z0-9 .\\-]{0,50}$")) {
@@ -62,7 +56,6 @@ public class HomeController {
             }
         }
 
-        // Walidacja score
         if (minScore != null && minScore < 0 || maxScore != null && maxScore < 0) {
             redirectAttributes.addFlashAttribute("error", "Scores must be positive.");
             return "redirect:/";
@@ -73,7 +66,6 @@ public class HomeController {
             return "redirect:/";
         }
 
-        // Walidacja daty
         if (startDate != null && endDate != null && !startDate.isEmpty() && !endDate.isEmpty()) {
             try {
                 LocalDateTime start = LocalDateTime.parse(startDate + "T00:00:00");
@@ -88,7 +80,6 @@ public class HomeController {
             }
         }
 
-        // Walidacja sortField i sortDirection
         List<String> allowedSortFields = List.of("id", "serverName", "ipAddress", "score");
         if (!allowedSortFields.contains(sortField)) {
             sortField = "id";
@@ -97,7 +88,6 @@ public class HomeController {
             sortDirection = "asc";
         }
 
-        // Walidacja paginacji
         if (page < 0) {
             page = 0;
         }
@@ -107,14 +97,12 @@ public class HomeController {
                 : Sort.by(sortField).descending();
         Pageable pageable = PageRequest.of(page, 10, sort);
 
-        // Walidacja wersji i trybu
         ServerVersion[] versions = ServerVersion.values();
         ServerMode[] modes = ServerMode.values();
 
         ServerVersion version = (versionId != null && versionId >= 0 && versionId < versions.length) ? versions[versionId] : null;
         ServerMode mode = (modeId != null && modeId >= 0 && modeId < modes.length) ? modes[modeId] : null;
 
-// Sprawdź, czy żaden filtr nie został ustawiony — wtedy pobierz wszystko z paginacją
         boolean noFilters = (serverName == null || serverName.isEmpty()) &&
                 (ipAddress == null || ipAddress.isEmpty()) &&
                 version == null &&
@@ -124,9 +112,8 @@ public class HomeController {
 
         Page<Server> serverPage;
 
-            // Inaczej — użyj filtrowania i paginacji
             serverPage = serverFacade.findFilteredServers(
-                    null,  // Możesz dodać dodatkowy filtr, jeśli potrzebujesz
+                    null,
                     serverName,
                     ipAddress,
                     version,
@@ -136,7 +123,6 @@ public class HomeController {
                     pageable
             );
 
-        // Przekazanie danych do widoku
         model.addAttribute("servers", serverPage.getContent());
         model.addAttribute("totalPages", serverPage.getTotalPages());
         model.addAttribute("currentPage", page);

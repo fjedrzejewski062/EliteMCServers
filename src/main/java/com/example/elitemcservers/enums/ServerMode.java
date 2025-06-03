@@ -1,9 +1,5 @@
 package com.example.elitemcservers.enums;
 
-import com.example.elitemcservers.entity.Server;
-
-import java.util.Comparator;
-
 public enum ServerMode {
     ADVENTURE("Adventure"),
     ANARCHY_SMP("Anarchy SMP"),

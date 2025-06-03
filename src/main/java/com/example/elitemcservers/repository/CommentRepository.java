@@ -1,7 +1,6 @@
 package com.example.elitemcservers.repository;
 
 import com.example.elitemcservers.entity.Comment;
-import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

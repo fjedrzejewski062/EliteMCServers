@@ -37,7 +37,7 @@ public class ServerService {
 
     public Server createServer(Server server, User createdBy){
         server.setCreatedBy(createdBy);
-        server.setStatus(ServerStatus.PENDING); // <-- Ustaw domyślny status
+        server.setStatus(ServerStatus.PENDING);
         server.setCreatedAt(LocalDateTime.now());
         server.setUpdatedAt(LocalDateTime.now());
         return serverRepository.save(server);
@@ -89,27 +89,22 @@ public class ServerService {
 
         Specification<Server> spec = Specification.where(null);
 
-        // Filtracja po serverName
         if (serverName != null && !serverName.isEmpty()) {
             spec = spec.and((root, query, builder) -> builder.like(builder.lower(root.get("serverName")), "%" + serverName.toLowerCase() + "%"));
         }
 
-        // Filtracja po ipAddress
         if (ipAddress != null && !ipAddress.isEmpty()) {
             spec = spec.and((root, query, builder) -> builder.like(builder.lower(root.get("ipAddress")), "%" + ipAddress.toLowerCase() + "%"));
         }
 
-        // Filtracja po wersji
         if (version != null) {
             spec = spec.and((root, query, builder) -> builder.equal(root.get("version"), version));
         }
 
-        // Filtracja po trybie
         if (mode != null) {
             spec = spec.and((root, query, builder) -> builder.equal(root.get("mode"), mode));
         }
 
-        // Filtracja po minimalnym i maksymalnym wyniku
         if (minScore != null) {
             spec = spec.and((root, query, builder) -> builder.greaterThanOrEqualTo(root.get("score"), minScore));
         }
@@ -117,10 +112,8 @@ public class ServerService {
             spec = spec.and((root, query, builder) -> builder.lessThanOrEqualTo(root.get("score"), maxScore));
         }
 
-        // Filtracja po statusie (tylko APPROVED)
         spec = spec.and((root, query, builder) -> builder.equal(root.get("status"), ServerStatus.APPROVED));
 
-        // Wykonaj zapytanie z filtrami
         return serverRepository.findAll(spec, pageable);
     }
 
@@ -219,7 +212,6 @@ public class ServerService {
 
         Specification<Server> spec = Specification.where(null);
 
-        // ✅ Filtruj po użytkowniku
         if (createdBy != null) {
             spec = spec.and((root, query, builder) ->
                     builder.equal(root.get("createdBy").get("id"), createdBy));

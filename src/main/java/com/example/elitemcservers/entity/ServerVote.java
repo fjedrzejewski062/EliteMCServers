@@ -17,7 +17,6 @@ public class ServerVote {
     @ManyToOne
     private Server server;
 
-    // "UP" lub "DOWN"
     @Column(nullable = false)
     private String voteType;
 

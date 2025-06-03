@@ -7,8 +7,6 @@ import com.example.elitemcservers.entity.User;
 import com.example.elitemcservers.enums.ServerMode;
 import com.example.elitemcservers.enums.ServerStatus;
 import com.example.elitemcservers.enums.ServerVersion;
-import com.example.elitemcservers.repository.ServerRepository;
-import com.example.elitemcservers.repository.ServerVoteRepository;
 import com.example.elitemcservers.service.CommentService;
 import com.example.elitemcservers.service.ServerService;
 import org.springframework.data.domain.Page;
@@ -41,7 +39,6 @@ public class ServerFacade {
             String currentVote = existingVote.getVoteType();
 
             if (!currentVote.equalsIgnoreCase(voteType)) {
-                // Zmiana głosu
                 if ("UP".equalsIgnoreCase(currentVote)) {
                     server.setUpVotes(server.getUpVotes() - 1);
                     server.setDownVotes(server.getDownVotes() + 1);
@@ -53,9 +50,7 @@ public class ServerFacade {
                 existingVote.setVoteType(voteType.toUpperCase());
                 serverService.saveVote(existingVote);
             }
-            // Taki sam głos – nic nie rób
         } else {
-            // Pierwszy głos
             ServerVote vote = new ServerVote();
             vote.setUser(user);
             vote.setServer(server);
@@ -68,10 +63,9 @@ public class ServerFacade {
             }
 
             serverService.saveVote(vote);
-            return; // głos już zapisany w metodzie up/downVote
+            return;
         }
 
-        // Aktualizuj score
         server.setScore(server.getUpVotes() - server.getDownVotes());
         serverService.saveServer(server);
     }

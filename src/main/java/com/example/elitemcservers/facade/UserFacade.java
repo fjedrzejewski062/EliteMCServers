@@ -40,7 +40,6 @@ public class UserFacade {
             throw new IllegalArgumentException("Email is already registered");
         }
 
-        // Przypisanie roli admina
         if (adminEmail != null && adminEmail.equalsIgnoreCase(user.getEmail())) {
             user.setRole("ADMIN");
         }

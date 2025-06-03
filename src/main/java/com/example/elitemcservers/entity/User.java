@@ -47,7 +47,6 @@ public class User {
     @OneToMany(mappedBy = "createdBy")
     private List<Server> servers;
 
-    // Gettery i settery
 
     public Long getId() {
         return id;

@@ -21,6 +21,7 @@
             <p>User not found.</p>
         </div>
         <br/>
+        <a th:href="@{'/admin/users/' + ${user.id} + '/servers'}" class="btn">View Servers</a>
         <a th:href="@{'/admin/users/advanced/' + ${user.id}}" class="btn">Advanced</a>
         <a th:href="@{/admin/users}" class="btn">Back to Users</a>
     </div>

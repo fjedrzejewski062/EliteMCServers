@@ -12,19 +12,16 @@
         <h2>Welcome to EliteMCServers!</h2>
         <form method="get" th:action="@{/}" class="filter-form">
             <div class="filter-row">
-                <!-- Server Name -->
                 <div class="filter-group">
                     <label>Server Name:</label>
                     <input type="text" name="serverName" th:value="${serverName}" class="small-input">
                 </div>
 
-                <!-- IP Address -->
                 <div class="filter-group">
                     <label>IP Address:</label>
                     <input type="text" name="ipAddress" th:value="${ipAddress}" class="small-input">
                 </div>
 
-                <!-- Version -->
                 <div class="filter-group">
                     <label>Version:</label>
                     <select name="versionId" class="small-input">
@@ -37,7 +34,6 @@
                     </select>
                 </div>
 
-                <!-- Mode -->
                 <div class="filter-group">
                     <label>Mode:</label>
                     <select name="modeId" class="small-input">
@@ -52,25 +48,21 @@
             </div>
             <div class="filter-row">
 
-                <!-- Min Score -->
                 <div class="filter-group">
                     <label>Min Score:</label>
                     <input type="number" name="minScore" th:value="${minScore}" class="small-input">
                 </div>
 
-                <!-- Max Score -->
                 <div class="filter-group">
                     <label>Max Score:</label>
                     <input type="number" name="maxScore" th:value="${maxScore}" class="small-input">
                 </div>
             </div>
 
-            <!-- Error display -->
             <div class="form-error" th:if="${error}">
                 <p th:text="${error}"></p>
             </div>
 
-            <!-- Buttons -->
             <div class="filter-group">
                 <button type="submit" class="btn">Filter</button>
                 <a th:href="@{/}" class="btn btn-clear spaced-btn">Clear Filters</a>
@@ -128,15 +120,12 @@
             </tbody>
         </table>
         <div class="pagination" th:if="${totalPages > 1}" style="margin-top: 1em; text-align: center;">
-            <!-- Previous Button -->
             <a th:if="${currentPage > 0}"
                th:href="@{/(page=${currentPage - 1}, serverName=${serverName}, ipAddress=${ipAddress}, versionId=${versionId}, modeId=${modeId}, minScore=${minScore}, maxScore=${maxScore}, startDate=${startDate}, endDate=${endDate}, sortField=${sortField}, sortDirection=${sortDirection})}"
                class="btn">Previous</a>
 
-            <!-- Page Number -->
             <span>Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span></span>
 
-            <!-- Next Button -->
             <a th:if="${currentPage + 1 < totalPages}"
                th:href="@{/(page=${currentPage + 1}, serverName=${serverName}, ipAddress=${ipAddress}, versionId=${versionId}, modeId=${modeId}, minScore=${minScore}, maxScore=${maxScore}, startDate=${startDate}, endDate=${endDate}, sortField=${sortField}, sortDirection=${sortDirection})}"
                class="btn">Next</a>

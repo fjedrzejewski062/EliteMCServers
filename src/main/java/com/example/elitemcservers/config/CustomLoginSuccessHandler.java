@@ -28,7 +28,7 @@ public class CustomLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         userService.getAuthenticatedUser(authentication).ifPresent(user -> {
             user.setLastLogin(LocalDateTime.now());
-            userService.update(user); // zapis nowej daty logowania
+            userService.update(user);
         });
 
         super.onAuthenticationSuccess(request, response, authentication);

@@ -5,7 +5,6 @@ import com.example.elitemcservers.enums.ServerStatus;
 import com.example.elitemcservers.enums.ServerVersion;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,12 +30,10 @@ public class Server {
     )
     private String ipAddress;
 
-    // Wersja - pole enum (od jakiej do jakiej)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ServerVersion version;
 
-    // Tryb serwera (np. Survival, Creative itp.)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ServerMode mode;
