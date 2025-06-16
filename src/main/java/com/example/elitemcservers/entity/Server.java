@@ -4,6 +4,7 @@ import com.example.elitemcservers.enums.ServerMode;
 import com.example.elitemcservers.enums.ServerStatus;
 import com.example.elitemcservers.enums.ServerVersion;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
@@ -16,14 +17,14 @@ public class Server {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = true)
+    @NotEmpty(message = "Server name is required")
     @Pattern(
             regexp = "^[a-zA-Z0-9 .\\-]{0,50}$",
             message = "Server name must be up to 50 characters and contain only letters, numbers, spaces, dots, or hyphens"
     )
     private String serverName;
 
-    @Column(nullable = true)
+    @NotEmpty(message = "IP address name is required")
     @Pattern(
             regexp = "^[a-zA-Z0-9 .\\-]{0,50}$",
             message = "IP address or domain must be up to 50 characters and contain only letters, numbers, spaces, dots, or hyphens"

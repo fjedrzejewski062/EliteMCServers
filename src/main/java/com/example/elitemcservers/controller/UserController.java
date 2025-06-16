@@ -5,6 +5,7 @@ import com.example.elitemcservers.facade.UserFacade;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -52,7 +53,8 @@ public class UserController {
         return "login";
     }
     @GetMapping("/myprofile")
-    public String showProfile(Model model, Authentication authentication) {
+    public String showProfile(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Optional<User> userOpt = userFacade.getAuthenticatedUser(authentication);
         if (userOpt.isEmpty()) {
             return "redirect:/login";
@@ -61,11 +63,9 @@ public class UserController {
         model.addAttribute("user", userOpt.get());
         return "myProfile";
     }
-
-
-
     @PostMapping("/deleteaccount")
-    public String deleteAccount(Authentication authentication) {
+    public String deleteAccount() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         userFacade.getAuthenticatedUser(authentication)
                 .ifPresent(userFacade::softDelete);
 
