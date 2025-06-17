@@ -5,7 +5,6 @@ import com.example.elitemcservers.entity.Server;
 import com.example.elitemcservers.entity.ServerVote;
 import com.example.elitemcservers.entity.User;
 import com.example.elitemcservers.enums.ServerMode;
-import com.example.elitemcservers.enums.ServerStatus;
 import com.example.elitemcservers.enums.ServerVersion;
 import com.example.elitemcservers.service.CommentService;
 import com.example.elitemcservers.service.ServerService;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

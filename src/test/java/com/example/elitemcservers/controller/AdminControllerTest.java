@@ -301,7 +301,6 @@ public class AdminControllerTest {
         verify(commentFacade, never()).deleteComment(5L);
     }
 
-    // ====== TESTY DLA viewUser() ======
 
     @Test
     @DisplayName("viewUser - should return user list page successfully")
@@ -345,9 +344,6 @@ public class AdminControllerTest {
                 .andExpect(redirectedUrl("/admin/dashboard"))
                 .andExpect(flash().attributeExists("error"));
     }
-
-
-    // ====== TESTY DLA viewUserServers() ======
 
     @Test
     @DisplayName("viewUserServers - should redirect to login if user not authenticated")
@@ -439,21 +435,18 @@ public class AdminControllerTest {
         when(userFacade.getAuthenticatedUser(any())).thenReturn(Optional.of(mockUser()));
         when(userFacade.findById(1L)).thenReturn(mockUser());
 
-        // createdBefore < createdAfter
         mockMvc.perform(get("/admin/users/1/servers")
                         .param("startDate", "2025-06-10T00:00:00")
                         .param("endDate", "2025-06-01T00:00:00"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(flash().attributeExists("error"));
 
-        // updatedBefore < updatedAfter
         mockMvc.perform(get("/admin/users/1/servers")
                         .param("updatedStartDate", "2025-06-10T00:00:00")
                         .param("updatedEndDate", "2025-06-01T00:00:00"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(flash().attributeExists("error"));
 
-        // Invalid date format
         mockMvc.perform(get("/admin/users/1/servers")
                         .param("startDate", "not-a-date"))
                 .andExpect(status().is3xxRedirection())
@@ -494,9 +487,6 @@ public class AdminControllerTest {
                 .andExpect(model().attributeExists("user"))
                 .andExpect(model().attributeExists("totalPages"));
     }
-
-
-    // ====== TESTY DLA userServersDetail() ======
 
     @Test
     @DisplayName("userServersDetail - should redirect with error if server not found")
@@ -575,7 +565,7 @@ public class AdminControllerTest {
         when(userFacade.getAuthenticatedUser(any())).thenReturn(Optional.of(mockUser()));
 
         mockMvc.perform(post("/admin/users/1/servers/edit/2")
-                        .param("name", "")  // puste pole powoduje error walidacji (przykład)
+                        .param("name", "")
                         .with(csrf())
                 )
                 .andExpect(status().isOk())

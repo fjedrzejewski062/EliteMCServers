@@ -1,7 +1,6 @@
 package com.example.elitemcservers.facade;
 
 import com.example.elitemcservers.service.StripeService;
-import com.example.elitemcservers.facade.StripeFacade;
 import com.stripe.exception.StripeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +48,6 @@ public class StripeFacadeTest {
         String successUrl = "http://success.url";
         String cancelUrl = "http://cancel.url";
 
-        // mockujemy StripeException, bo nie da się go normalnie stworzyć (jest abstrakcyjny lub wymaga wielu argumentów)
         StripeException stripeException = mock(StripeException.class);
         when(stripeException.getMessage()).thenReturn("Stripe API error");
 

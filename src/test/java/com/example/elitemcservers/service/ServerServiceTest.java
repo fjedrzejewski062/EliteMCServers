@@ -138,7 +138,7 @@ public class ServerServiceTest {
         Optional<Server> updated = serverRepository.findById(server.getId());
         assertThat(updated).isPresent();
         assertThat(updated.get().getUpVotes()).isEqualTo(6);
-        assertThat(updated.get().getScore()).isEqualTo(4); // 6 - 2
+        assertThat(updated.get().getScore()).isEqualTo(4);
     }
 
     @Test
@@ -157,7 +157,7 @@ public class ServerServiceTest {
         Optional<Server> updated = serverRepository.findById(server.getId());
         assertThat(updated).isPresent();
         assertThat(updated.get().getDownVotes()).isEqualTo(3);
-        assertThat(updated.get().getScore()).isEqualTo(2); // 5 - 3
+        assertThat(updated.get().getScore()).isEqualTo(2);
     }
 
     @Test

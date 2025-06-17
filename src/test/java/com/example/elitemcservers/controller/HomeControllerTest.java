@@ -1,19 +1,13 @@
 package com.example.elitemcservers.controller;
 
 import com.example.elitemcservers.entity.Server;
-import com.example.elitemcservers.enums.ServerMode;
-import com.example.elitemcservers.enums.ServerVersion;
 import com.example.elitemcservers.facade.ServerFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.data.domain.*;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.ui.Model;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 

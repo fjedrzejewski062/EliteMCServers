@@ -58,11 +58,11 @@ public class CommentServiceTest {
         server.setServerName("TestServer" + System.currentTimeMillis());
         server.setCreatedBy(user);
         server.setCreatedAt(LocalDateTime.now());
-        server.setUpdatedAt(LocalDateTime.now());  // <-- tutaj ustawiamy updatedAt, którego brakowało
+        server.setUpdatedAt(LocalDateTime.now());
         server.setMode(ServerMode.SURVIVAL);
         server.setStatus(ServerStatus.APPROVED);
         server.setScore(10);
-        server.setVersion(ServerVersion.V1_18_0);      // <-- dopisz też wersję, bo jest not null
+        server.setVersion(ServerVersion.V1_18_0);
         return serverRepository.save(server);
     }
 

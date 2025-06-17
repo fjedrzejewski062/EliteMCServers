@@ -17,7 +17,6 @@ class DonateControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Konfiguracja ViewResolvera, żeby test działał poprawnie z widokami (np. Thymeleaf, JSP itp.)
         ViewResolver viewResolver = new InternalResourceViewResolver("/WEB-INF/views/", ".jsp");
 
         mockMvc = MockMvcBuilders.standaloneSetup(new DonateController())

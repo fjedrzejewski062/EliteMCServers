@@ -41,12 +41,10 @@ public class ServerControllerTest {
 
     @BeforeEach
     void setup() {
-        // ręczne mockowanie
         serverFacade = Mockito.mock(ServerFacade.class);
         userFacade = Mockito.mock(UserFacade.class);
         commentFacade = Mockito.mock(CommentFacade.class);
 
-        // tworzymy kontroler z wstrzykniętymi mockami
         serverController = new ServerController(serverFacade, userFacade, commentFacade);
 
         // standaloneSetup bez Spring Boot Context
@@ -56,9 +54,9 @@ public class ServerControllerTest {
     private User mockUser() {
         User user = new User();
         user.setId(1L);
-        user.setUsername("testuser"); // min 3, max 50, pasuje do regexa
+        user.setUsername("testuser");
         user.setEmail("test@example.com");
-        user.setPassword("password123"); // min 8 znaków, pasuje do regexa
+        user.setPassword("password123");
         user.setProfileImage("/img/default_profile.png");
         user.setRole("USER");
         user.setBanned(false);
@@ -72,11 +70,11 @@ public class ServerControllerTest {
         Server server = new Server();
         server.setId(1L);
         server.setCreatedBy(mockUser());
-        server.setServerName("Test Server"); // do 50 znaków, pasuje do regexa
-        server.setIpAddress("127.0.0.1");    // do 50 znaków, pasuje do regexa
-        server.setVersion(ServerVersion.V1_19_0);  // dopasuj do swojego enum, np. V1_19
-        server.setMode(ServerMode.SURVIVAL);      // dopasuj do swojego enum, np. SURVIVAL
-        server.setDescription("Test server description."); // max 1000 znaków, bez niedozwolonych znaków
+        server.setServerName("Test Server");
+        server.setIpAddress("127.0.0.1");
+        server.setVersion(ServerVersion.V1_19_0);
+        server.setMode(ServerMode.SURVIVAL);
+        server.setDescription("Test server description.");
         server.setUpVotes(0);
         server.setDownVotes(0);
         server.setScore(0);

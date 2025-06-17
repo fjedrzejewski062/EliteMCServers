@@ -51,7 +51,7 @@ class UserFacadeTest {
 
         User registered = userFacade.registerUser(user, "pass", "accepted");
         assertEquals("user1", registered.getUsername());
-        assertEquals("USER", registered.getRole()); // poprawione na "USER"
+        assertEquals("USER", registered.getRole());
 
         verify(userService).register(user);
     }

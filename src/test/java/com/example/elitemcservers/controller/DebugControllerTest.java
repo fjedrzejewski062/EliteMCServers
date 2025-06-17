@@ -32,7 +32,6 @@ class DebugControllerTest {
     @Test
     @DisplayName("GET /debug-auth - returns authentication info when authenticated")
     void testDebugAuth_WithAuthentication() throws Exception {
-        // Tworzymy mock Authentication
         Authentication auth = new TestingAuthenticationToken("testUser", "password", "ROLE_USER");
 
         mockMvc.perform(get("/debug-auth").principal(auth))

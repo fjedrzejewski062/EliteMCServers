@@ -1,6 +1,5 @@
 package com.example.elitemcservers.controller;
 
-import com.example.elitemcservers.controller.StripeController.DonationRequest;
 import com.example.elitemcservers.facade.StripeFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
